@@ -17,7 +17,7 @@ export function buildMcpServer(auth: AuthInfo): McpServer {
   const ctx = buildToolContext(auth);
 
   const server = new McpServer(
-    { name: 'kbju-mcp', version: '0.1.0' },
+    { name: 'carrot-eaters-mcp', version: '0.1.0' },
     { capabilities: { tools: {} }, instructions: INSTRUCTIONS }
   );
 

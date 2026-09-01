@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { requireUser, fetchProfile } from '@/lib/auth';
-import { zonedPeriodRangeUtc, zonedDateKey, macroTargets } from '@kbju/shared';
+import { zonedPeriodRangeUtc, zonedDateKey, macroTargets } from '@carrot-eaters/shared';
+import { AppHeader } from '@/components/AppHeader';
 
 function isoDate(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -25,7 +26,8 @@ export default async function HistoryPage({
   if (!profile) redirect('/onboarding');
 
   const params = await searchParams;
-  const { from, to } = params.from && params.to ? { from: params.from, to: params.to } : presetRange(params.preset ?? 'week');
+  const activePreset = params.from && params.to ? null : (params.preset ?? 'week');
+  const { from, to } = params.from && params.to ? { from: params.from, to: params.to } : presetRange(activePreset ?? 'week');
 
   const { start, end } = zonedPeriodRangeUtc(profile.timezone, from, to);
   const { data, error } = await supabase
@@ -62,56 +64,103 @@ export default async function HistoryPage({
   const dayCount = days.length || 1;
   const targets = macroTargets(profile.kcal_target);
 
-  return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-6 px-4 pb-24 pt-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">История</h1>
-        <Link href="/dashboard" className="text-sm text-slate-500 underline">
-          Сегодня
-        </Link>
-      </header>
+  const chipClass = (active: boolean) =>
+    `rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+      active
+        ? 'border-emerald-600 bg-emerald-600 text-white'
+        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+    }`;
 
-      <nav className="flex flex-wrap items-center gap-3 text-sm">
-        <Link href="/history?preset=week" className="rounded-full border border-slate-300 px-3 py-1">
-          Неделя
-        </Link>
-        <Link href="/history?preset=month" className="rounded-full border border-slate-300 px-3 py-1">
-          Месяц
-        </Link>
-        <form action="/history" className="flex items-center gap-2">
-          <input type="date" name="from" defaultValue={from} className="rounded border border-slate-300 px-2 py-1" />
-          <span>—</span>
-          <input type="date" name="to" defaultValue={to} className="rounded border border-slate-300 px-2 py-1" />
-          <button type="submit" className="rounded-full bg-slate-900 px-3 py-1 text-white">
+  return (
+    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-5 px-4 pb-24">
+      <AppHeader />
+
+      <h1 className="animate-fade-in-up text-2xl font-semibold tracking-tight text-slate-900">История</h1>
+
+      <nav className="animate-fade-in-up flex flex-col gap-3" style={{ animationDelay: '40ms' }}>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/history?preset=week" className={chipClass(activePreset === 'week')}>
+            Неделя
+          </Link>
+          <Link href="/history?preset=month" className={chipClass(activePreset === 'month')}>
+            Месяц
+          </Link>
+        </div>
+        <form action="/history" className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="flex flex-1 items-center gap-2">
+            <input
+              type="date"
+              name="from"
+              defaultValue={from}
+              className="w-full min-w-0 rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            />
+            <span className="shrink-0 text-slate-300">—</span>
+            <input
+              type="date"
+              name="to"
+              defaultValue={to}
+              className="w-full min-w-0 rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            />
+          </div>
+          <button
+            type="submit"
+            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-slate-800 active:scale-95"
+          >
             Показать
           </button>
         </form>
       </nav>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4">
+      <section
+        className="animate-fade-in-up rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/3"
+        style={{ animationDelay: '80ms' }}
+      >
         <p className="text-sm text-slate-500">
           {from} — {to} · {rows.length} приёмов пищи
         </p>
-        <p className="mt-2 font-medium">
-          Итого: {Math.round(total.kcal)} ккал · Б{Math.round(total.protein)}/Ж{Math.round(total.fat)}/У{Math.round(total.carbs)}
+        <p className="mt-2 text-lg font-semibold text-slate-900">
+          {Math.round(total.kcal)} ккал <span className="text-sm font-normal text-slate-400">итого</span>
         </p>
-        <p className="mt-1 text-sm text-slate-500">
-          В среднем в день: {Math.round(total.kcal / dayCount)} ккал (цель {profile.kcal_target}) · Б
-          {Math.round(total.protein / dayCount)} (цель {targets.protein}) · Ж{Math.round(total.fat / dayCount)} (цель {targets.fat}) · У
-          {Math.round(total.carbs / dayCount)} (цель {targets.carbs})
+        <p className="text-sm text-slate-500">
+          Б{Math.round(total.protein)}/Ж{Math.round(total.fat)}/У{Math.round(total.carbs)}
+        </p>
+        <div className="my-3 h-px bg-slate-100" />
+        <p className="text-sm text-slate-500">
+          В среднем в день: <span className="font-medium text-slate-700">{Math.round(total.kcal / dayCount)} ккал</span> из{' '}
+          {profile.kcal_target} · Б{Math.round(total.protein / dayCount)}/{targets.protein} · Ж{Math.round(total.fat / dayCount)}/
+          {targets.fat} · У{Math.round(total.carbs / dayCount)}/{targets.carbs}
         </p>
       </section>
 
-      <section className="flex flex-col gap-2">
-        {days.length === 0 && <p className="text-sm text-slate-400">Нет записей за этот период.</p>}
-        {days.map(([day, sums]) => (
-          <div key={day} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
-            <span className="text-sm font-medium">{day}</span>
-            <span className="text-sm text-slate-500">
-              {Math.round(sums.kcal)} ккал · Б{Math.round(sums.protein)}/Ж{Math.round(sums.fat)}/У{Math.round(sums.carbs)}
-            </span>
-          </div>
-        ))}
+      <section className="animate-fade-in-up flex flex-col gap-2" style={{ animationDelay: '120ms' }}>
+        {days.length === 0 && (
+          <p className="rounded-2xl border border-dashed border-slate-200 bg-white/60 p-6 text-center text-sm text-slate-400">
+            Нет записей за этот период.
+          </p>
+        )}
+        {days.map(([day, sums], i) => {
+          const pct = Math.min(100, Math.round((sums.kcal / profile.kcal_target) * 100));
+          return (
+            <div
+              key={day}
+              className="animate-fade-in-up rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm shadow-slate-900/3 transition-shadow hover:shadow-md"
+              style={{ animationDelay: `${140 + i * 30}ms` }}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-medium text-slate-800">{day}</span>
+                <span className="shrink-0 text-sm text-slate-500">
+                  {Math.round(sums.kcal)} ккал · Б{Math.round(sums.protein)}/Ж{Math.round(sums.fat)}/У{Math.round(sums.carbs)}
+                </span>
+              </div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className={`h-full rounded-full transition-[width] duration-500 ${pct >= 100 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
       </section>
     </main>
   );

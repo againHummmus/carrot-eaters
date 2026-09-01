@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { macroTargets } from '@kbju/shared';
-import type { Profile } from '@kbju/shared';
+import { macroTargets } from '@carrot-eaters/shared';
+import type { Profile } from '@carrot-eaters/shared';
 import type { ToolContext } from './context.js';
 
 export const NO_PROFILE_HINT =

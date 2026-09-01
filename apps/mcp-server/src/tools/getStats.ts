@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { zonedPeriodRangeUtc, zonedDateKey } from '@kbju/shared';
+import { zonedPeriodRangeUtc, zonedDateKey } from '@carrot-eaters/shared';
 import type { ToolContext } from './context.js';
 import { fetchProfile } from './profile.js';
 import { macroLine } from '../format.js';

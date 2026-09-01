@@ -1,6 +1,6 @@
 {
-  "name": "KBJU",
-  "short_name": "KBJU",
+  "name": "Carrot Eaters",
+  "short_name": "Carrot Eaters",
   "description": "Трекер калорий и БЖУ",
   "start_url": "/dashboard",
   "display": "standalone",

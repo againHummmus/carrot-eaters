@@ -13,16 +13,19 @@ export function ProgressBar({ label, value, target, unit, variant = 'personal' }
 
   return (
     <div>
-      <div className="mb-1 flex items-baseline justify-between text-sm">
-        <span className="font-medium text-slate-800">{label}</span>
-        <span className="text-slate-500">
-          {Math.round(value)} / {Math.round(target)} {unit}
+      <div className="mb-1.5 flex items-baseline justify-between text-sm">
+        <span className="font-medium text-slate-700">{label}</span>
+        <span className="tabular-nums text-slate-500">
+          {Math.round(value)} <span className="text-slate-300">/</span> {Math.round(target)} {unit}
         </span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-slate-200">
-        <div className={`h-full rounded-full ${barColor} transition-all`} style={{ width: `${pct}%` }} />
+      <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 shadow-inner">
+        <div
+          className={`h-full rounded-full ${barColor} transition-[width] duration-500 ease-out`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
-      {variant === 'average' && <p className="mt-0.5 text-xs text-slate-400">средняя норма, не персональная цель</p>}
+      {variant === 'average' && <p className="mt-1 text-xs text-slate-400">средняя норма, не персональная цель</p>}
     </div>
   );
 }

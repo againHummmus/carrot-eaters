@@ -1,5 +1,5 @@
 {
-  "name": "@kbju/mcp-server",
+  "name": "@carrot-eaters/mcp-server",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@kbju/shared": "*",
+    "@carrot-eaters/shared": "*",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@supabase/supabase-js": "^2.45.0",
     "cors": "^2.8.5",

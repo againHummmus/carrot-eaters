@@ -1,4 +1,4 @@
-# kbju-mcp
+# carrot-eaters-mcp
 
 Трекер калорий: логирование через диалог с Клодом (MCP) + Next.js PWA для просмотра прогресса.
 Монорепо (npm workspaces):

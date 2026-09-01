@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { sumNutrients, type Meal } from '@kbju/shared';
+import { sumNutrients, type Meal } from '@carrot-eaters/shared';
 import type { ToolContext } from './context.js';
 import { fetchProfile, NO_PROFILE_HINT } from './profile.js';
 import { todaySummaryLine } from './dailySummary.js';

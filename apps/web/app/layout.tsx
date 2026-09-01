@@ -2,13 +2,13 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'KBJU',
+  title: 'Carrot Eaters',
   description: 'Трекер калорий и БЖУ',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'KBJU',
+    title: 'Carrot Eaters',
   },
   icons: {
     apple: '/icons/apple-touch-icon.png',

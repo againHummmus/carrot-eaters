@@ -1,4 +1,4 @@
-import { macroTargets, todayRangeUtc, type Profile } from '@kbju/shared';
+import { macroTargets, todayRangeUtc, type Profile } from '@carrot-eaters/shared';
 import type { ToolContext } from './context.js';
 import { round } from '../format.js';
 

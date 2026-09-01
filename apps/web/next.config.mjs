@@ -8,7 +8,7 @@ const withPWA = withPWAInit({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@kbju/shared'],
+  transpilePackages: ['@carrot-eaters/shared'],
 };
 
 export default withPWA(nextConfig);

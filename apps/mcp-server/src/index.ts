@@ -23,7 +23,7 @@ async function main() {
     mcpAuthMetadataRouter({
       oauthMetadata,
       resourceServerUrl,
-      resourceName: 'kbju-mcp',
+      resourceName: 'carrot-eaters-mcp',
     })
   );
 
@@ -67,7 +67,7 @@ async function main() {
   app.get('/health', (_req: Request, res: Response) => res.json({ ok: true }));
 
   app.listen(env.PORT, () => {
-    console.log(`kbju-mcp listening on :${env.PORT}`);
+    console.log(`carrot-eaters-mcp listening on :${env.PORT}`);
     console.log(`Resource: ${resourceServerUrl.href}`);
     console.log(`Protected resource metadata: ${resourceMetadataUrl}`);
   });

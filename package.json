@@ -1,5 +1,5 @@
 {
-  "name": "kbju-mcp",
+  "name": "carrot-eaters-mcp",
   "private": true,
   "workspaces": [
     "apps/*",
