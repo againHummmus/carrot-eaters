@@ -2,6 +2,7 @@ import { createMcpExpressApp } from '@modelcontextprotocol/sdk/server/express.js
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { requireBearerAuth } from '@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js';
 import { mcpAuthMetadataRouter, getOAuthProtectedResourceMetadataUrl } from '@modelcontextprotocol/sdk/server/auth/router.js';
+import cors from 'cors';
 import type { Request, Response } from 'express';
 import { env } from './config.js';
 import { verifyAccessToken } from './auth/jwt.js';
@@ -30,6 +31,12 @@ async function main() {
     verifier: { verifyAccessToken },
     resourceMetadataUrl,
   });
+
+  // Some MCP clients call /mcp directly from the browser. A POST carrying an
+  // Authorization header + JSON body is a non-simple request, so the browser sends a
+  // CORS preflight (OPTIONS) first — this must be answered before the auth middleware
+  // ever runs, since preflight requests never carry credentials.
+  app.use('/mcp', cors());
 
   app.post('/mcp', auth, async (req: Request, res: Response) => {
     try {
