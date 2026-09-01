@@ -34,9 +34,7 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-20 -mx-4 mb-4 flex items-center justify-between border-b border-slate-200/70 bg-white/80 px-4 py-3 backdrop-blur-md">
       <Link href="/dashboard" className="flex items-center gap-2 font-semibold tracking-tight text-slate-900">
-        <span className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-base shadow-sm shadow-emerald-500/20">
-          🥕
-        </span>
+        <img src="/icons/icon-192.png" alt="" width={32} height={32} className="h-8 w-8 rounded-xl shadow-sm shadow-emerald-500/20" />
         Carrot Eaters
       </Link>
 

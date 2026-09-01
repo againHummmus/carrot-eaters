@@ -35,9 +35,7 @@ export default async function ConsentPage({
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 py-12">
       <div className="animate-fade-in-up flex flex-col gap-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-900/5 sm:p-8">
         <div className="flex flex-col items-center gap-2 text-center">
-          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-2xl shadow-sm shadow-emerald-500/30">
-            🥕
-          </span>
+          <img src="/icons/icon-192.png" alt="" width={48} height={48} className="h-12 w-12 rounded-2xl shadow-sm shadow-emerald-500/30" />
           <h1 className="text-xl font-semibold tracking-tight text-slate-900">Разрешить доступ?</h1>
           <p className="text-sm text-slate-500">
             <span className="font-medium text-slate-800">{authDetails.client.name}</span> запрашивает доступ к твоим данным в Carrot
