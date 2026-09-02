@@ -5,13 +5,16 @@ import { registerProfileTools } from './tools/profile.js';
 import { registerLogMealTool } from './tools/logMeal.js';
 import { registerLogRecipePortionTool } from './tools/logRecipePortion.js';
 import { registerGetStatsTool } from './tools/getStats.js';
+import { registerListMealsTool } from './tools/listMeals.js';
 import { registerUpdateMealTool } from './tools/updateMeal.js';
 import { registerDeleteMealTool } from './tools/deleteMeal.js';
 
 const INSTRUCTIONS = `Перед первым логированием еды в разговоре проверяй профиль через get_profile.
 Если профиля нет — спроси у пользователя имя и дневную цель по калориям (только калории — Б/Ж/У считаются
 автоматически) и вызови setup_profile. После каждого log_meal или log_recipe_portion сообщай пользователю
-итог за день и остаток до цели — эти инструменты уже возвращают готовую сводку, просто перескажи её.`;
+итог за день и остаток до цели — эти инструменты уже возвращают готовую сводку, просто перескажи её.
+update_meal и delete_meal принимают meal_id, а не название — у тебя нет его заранее, поэтому перед правкой
+или удалением всегда сначала вызывай list_meals, чтобы найти нужный id.`;
 
 export function buildMcpServer(auth: AuthInfo): McpServer {
   const ctx = buildToolContext(auth);
@@ -25,6 +28,7 @@ export function buildMcpServer(auth: AuthInfo): McpServer {
   registerLogMealTool(server, ctx);
   registerLogRecipePortionTool(server, ctx);
   registerGetStatsTool(server, ctx);
+  registerListMealsTool(server, ctx);
   registerUpdateMealTool(server, ctx);
   registerDeleteMealTool(server, ctx);
 

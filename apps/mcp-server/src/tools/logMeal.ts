@@ -14,11 +14,11 @@ const mealItemSchema = z.object({
   protein: z.number(),
   fat: z.number(),
   carbs: z.number(),
-  fiber: z.number().optional(),
-  sugar: z.number().optional(),
-  saturated_fat: z.number().optional(),
-  cholesterol: z.number().optional(),
-  sodium: z.number().optional(),
+  fiber: z.number().describe('г, обязательно — оцени даже приблизительно, если не уверен(а)'),
+  sugar: z.number().describe('г, обязательно — оцени даже приблизительно, если не уверен(а)'),
+  saturated_fat: z.number().describe('г, обязательно — оцени даже приблизительно, если не уверен(а)'),
+  cholesterol: z.number().describe('мг, обязательно — оцени даже приблизительно, если не уверен(а)'),
+  sodium: z.number().describe('мг, обязательно — оцени даже приблизительно, если не уверен(а)'),
 });
 
 const UNIQUE_VIOLATION = '23505';
@@ -29,8 +29,9 @@ export function registerLogMealTool(server: McpServer, ctx: ToolContext): void {
     {
       description:
         'Записывает приём пищи по уже посчитанным КБЖУ (расчёт делает сама модель по фото/описанию, этот инструмент только сохраняет). ' +
-        'fiber/sugar/saturated_fat/cholesterol/sodium — опциональны и best-effort, оставляй null если не уверен(а). ' +
-        'client_ref — тот же токен при повторном вызове не создаёт дубль. Возвращает не просто "записано", а сводку за сегодня и остаток до цели.',
+        'fiber/sugar/saturated_fat/cholesterol/sodium обязательны для каждого продукта — оцени их наравне с КБЖУ, ' +
+        'даже если приблизительно, не оставляй пустыми. ' +
+        'client_ref — тот же токен при повторном вызове не создаёт дубль. Возвращает не просто "записано", а сводку за сегодня, остаток до цели и meal_id записи.',
       inputSchema: {
         title: z.string().describe('Название приёма пищи'),
         items: z.array(mealItemSchema).min(1).describe('Продукты, из которых состоит приём пищи'),
@@ -60,7 +61,7 @@ export function registerLogMealTool(server: McpServer, ctx: ToolContext): void {
             content: [
               {
                 type: 'text',
-                text: `Уже записано ранее: ${meal.title} — ${macroLine(meal.kcal, meal.protein, meal.fat, meal.carbs)}\n${summary}`,
+                text: `Уже записано ранее: ${meal.title} — ${macroLine(meal.kcal, meal.protein, meal.fat, meal.carbs)} (id: ${meal.id})\n${summary}`,
               },
             ],
           };
@@ -107,7 +108,7 @@ export function registerLogMealTool(server: McpServer, ctx: ToolContext): void {
         content: [
           {
             type: 'text',
-            text: `Записано: ${title} — ${macroLine(totals.kcal, totals.protein, totals.fat, totals.carbs)}\n${summary}`,
+            text: `Записано: ${title} — ${macroLine(totals.kcal, totals.protein, totals.fat, totals.carbs)} (id: ${(meal as Meal).id})\n${summary}`,
           },
         ],
       };

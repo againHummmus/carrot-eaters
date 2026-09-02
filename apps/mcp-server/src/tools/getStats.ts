@@ -5,8 +5,7 @@ import { zonedPeriodRangeUtc, zonedDateKey } from '@carrot-eaters/shared';
 import type { ToolContext } from './context.js';
 import { fetchProfile } from './profile.js';
 import { macroLine } from '../format.js';
-
-const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Дата в формате YYYY-MM-DD');
+import { dateSchema } from '../schemas.js';
 
 export function registerGetStatsTool(server: McpServer, ctx: ToolContext): void {
   server.registerTool(

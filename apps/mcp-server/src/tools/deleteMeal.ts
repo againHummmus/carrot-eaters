@@ -7,7 +7,9 @@ export function registerDeleteMealTool(server: McpServer, ctx: ToolContext): voi
   server.registerTool(
     'delete_meal',
     {
-      description: 'Удаляет приём пищи по meal_id (вместе со связанными meal_items).',
+      description:
+        'Удаляет приём пищи по meal_id (вместе со связанными meal_items). ' +
+        'meal_id заранее неизвестен — сначала вызови list_meals, чтобы его найти.',
       inputSchema: {
         meal_id: z.string().uuid(),
       },

@@ -12,11 +12,11 @@ const mealItemSchema = z.object({
   protein: z.number(),
   fat: z.number(),
   carbs: z.number(),
-  fiber: z.number().optional(),
-  sugar: z.number().optional(),
-  saturated_fat: z.number().optional(),
-  cholesterol: z.number().optional(),
-  sodium: z.number().optional(),
+  fiber: z.number().describe('г, обязательно — оцени даже приблизительно, если не уверен(а)'),
+  sugar: z.number().describe('г, обязательно — оцени даже приблизительно, если не уверен(а)'),
+  saturated_fat: z.number().describe('г, обязательно — оцени даже приблизительно, если не уверен(а)'),
+  cholesterol: z.number().describe('мг, обязательно — оцени даже приблизительно, если не уверен(а)'),
+  sodium: z.number().describe('мг, обязательно — оцени даже приблизительно, если не уверен(а)'),
 });
 
 export function registerUpdateMealTool(server: McpServer, ctx: ToolContext): void {
@@ -25,7 +25,8 @@ export function registerUpdateMealTool(server: McpServer, ctx: ToolContext): voi
     {
       description:
         'Правит уже записанный приём пищи: title, eaten_at и/или items (полный новый список продуктов — если передан, ' +
-        'КБЖУ пересчитываются с нуля из него). Передавай только те поля, которые нужно поменять.',
+        'КБЖУ пересчитываются с нуля из него). Передавай только те поля, которые нужно поменять. ' +
+        'meal_id заранее неизвестен — сначала вызови list_meals, чтобы его найти.',
       inputSchema: {
         meal_id: z.string().uuid(),
         title: z.string().optional(),

@@ -75,7 +75,7 @@ export function registerLogRecipePortionTool(server: McpServer, ctx: ToolContext
             content: [
               {
                 type: 'text',
-                text: `Уже записано ранее: ${meal.title} — ${macroLine(meal.kcal, meal.protein, meal.fat, meal.carbs)}\n${summary}`,
+                text: `Уже записано ранее: ${meal.title} — ${macroLine(meal.kcal, meal.protein, meal.fat, meal.carbs)} (id: ${meal.id})\n${summary}`,
               },
             ],
           };
@@ -129,7 +129,7 @@ export function registerLogRecipePortionTool(server: McpServer, ctx: ToolContext
         content: [
           {
             type: 'text',
-            text: `Записано: ${recipe.title} — ${macroLine(portion.kcal, portion.protein, portion.fat, portion.carbs)}\n${summary}`,
+            text: `Записано: ${recipe.title} — ${macroLine(portion.kcal, portion.protein, portion.fat, portion.carbs)} (id: ${(meal as Meal).id})\n${summary}`,
           },
         ],
       };
