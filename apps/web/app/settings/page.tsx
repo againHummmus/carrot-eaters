@@ -14,9 +14,10 @@ export default async function SettingsPage() {
   const targets = macroTargets(profile.kcal_target);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col gap-5 px-4 pb-24">
+    <div className="min-h-screen">
       <AppHeader />
 
+      <main className="mx-auto flex max-w-sm flex-col gap-5 px-4 pb-24 pt-4">
       <h1 className="animate-fade-in-up text-2xl font-semibold tracking-tight text-slate-900">Настройки</h1>
 
       <form
@@ -69,6 +70,7 @@ export default async function SettingsPage() {
           Выйти
         </button>
       </form>
-    </main>
+      </main>
+    </div>
   );
 }

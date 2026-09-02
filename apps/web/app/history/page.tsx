@@ -72,9 +72,10 @@ export default async function HistoryPage({
     }`;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-5 px-4 pb-24">
+    <div className="min-h-screen">
       <AppHeader />
 
+      <main className="mx-auto flex max-w-2xl flex-col gap-5 px-4 pb-24 pt-4">
       <h1 className="animate-fade-in-up text-2xl font-semibold tracking-tight text-slate-900">История</h1>
 
       <nav className="animate-fade-in-up flex flex-col gap-3" style={{ animationDelay: '40ms' }}>
@@ -162,6 +163,7 @@ export default async function HistoryPage({
           );
         })}
       </section>
-    </main>
+      </main>
+    </div>
   );
 }
