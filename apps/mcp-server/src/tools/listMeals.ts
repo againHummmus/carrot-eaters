@@ -11,12 +11,12 @@ export function registerListMealsTool(server: McpServer, ctx: ToolContext): void
     'list_meals',
     {
       description:
-        'Возвращает список приёмов пищи за период (по умолчанию — сегодня) вместе с их meal_id. ' +
-        'Вызывай этот инструмент перед update_meal или delete_meal — они принимают meal_id, а не название, ' +
-        'и без list_meals у тебя нет способа его узнать.',
+        'Lists the meals in a period (today by default) together with their meal_id. ' +
+        'Call this before update_meal or delete_meal — they take a meal_id rather than a title, ' +
+        'and without list_meals you have no way to know it.',
       inputSchema: {
-        from: dateSchema.optional().describe('Начало периода, YYYY-MM-DD. По умолчанию — сегодня'),
-        to: dateSchema.optional().describe('Конец периода, YYYY-MM-DD, включительно. По умолчанию — совпадает с from'),
+        from: dateSchema.optional().describe('Start of the period, YYYY-MM-DD. Defaults to today'),
+        to: dateSchema.optional().describe('End of the period, YYYY-MM-DD, inclusive. Defaults to the same day as from'),
       },
     },
     async ({ from, to }): Promise<CallToolResult> => {
@@ -39,16 +39,19 @@ export function registerListMealsTool(server: McpServer, ctx: ToolContext): void
       const rows = data ?? [];
       if (rows.length === 0) {
         return {
-          content: [{ type: 'text', text: `Приёмов пищи за ${fromDate}${toDate !== fromDate ? ` — ${toDate}` : ''} не найдено.` }],
+          content: [{ type: 'text', text: `No meals logged for ${fromDate}${toDate !== fromDate ? ` — ${toDate}` : ''}.` }],
         };
       }
 
       const lines = rows.map((row) => {
-        const time = new Date(row.eaten_at).toLocaleString('ru-RU', {
+        // Month as a word and a 24h clock: this listing is read back by a model, so "04 Sep, 14:30"
+        // leaves no room for the dd/mm vs mm/dd ambiguity a numeric date would introduce.
+        const time = new Date(row.eaten_at).toLocaleString('en-GB', {
           day: '2-digit',
-          month: '2-digit',
+          month: 'short',
           hour: '2-digit',
           minute: '2-digit',
+          hour12: false,
           timeZone: timezone,
         });
         return `${row.id} · ${time} · ${row.title} — ${macroLine(row.kcal, row.protein, row.fat, row.carbs)}`;

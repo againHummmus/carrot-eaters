@@ -4,9 +4,11 @@ interface ProgressBarProps {
   target: number;
   unit: string;
   variant?: 'personal' | 'average';
+  /** Caption under an `average` bar, e.g. "average norm, not a personal goal". */
+  note?: string;
 }
 
-export function ProgressBar({ label, value, target, unit, variant = 'personal' }: ProgressBarProps) {
+export function ProgressBar({ label, value, target, unit, variant = 'personal', note }: ProgressBarProps) {
   const pct = target > 0 ? Math.min(100, Math.round((value / target) * 100)) : 0;
   const over = value > target;
   const barColor = over ? 'bg-amber-500' : variant === 'personal' ? 'bg-emerald-500' : 'bg-slate-400';
@@ -25,7 +27,7 @@ export function ProgressBar({ label, value, target, unit, variant = 'personal' }
           style={{ width: `${pct}%` }}
         />
       </div>
-      {variant === 'average' && <p className="mt-1 text-xs text-slate-400">средняя норма, не персональная цель</p>}
+      {variant === 'average' && note && <p className="mt-1 text-xs text-slate-400">{note}</p>}
     </div>
   );
 }

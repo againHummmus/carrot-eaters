@@ -14,11 +14,11 @@ const mealItemSchema = z.object({
   protein: z.number(),
   fat: z.number(),
   carbs: z.number(),
-  fiber: z.number().describe('г, обязательно — оцени даже приблизительно, если не уверен(а)'),
-  sugar: z.number().describe('г, обязательно — оцени даже приблизительно, если не уверен(а)'),
-  saturated_fat: z.number().describe('г, обязательно — оцени даже приблизительно, если не уверен(а)'),
-  cholesterol: z.number().describe('мг, обязательно — оцени даже приблизительно, если не уверен(а)'),
-  sodium: z.number().describe('мг, обязательно — оцени даже приблизительно, если не уверен(а)'),
+  fiber: z.number().describe('g, required — estimate it even roughly if unsure'),
+  sugar: z.number().describe('g, required — estimate it even roughly if unsure'),
+  saturated_fat: z.number().describe('g, required — estimate it even roughly if unsure'),
+  cholesterol: z.number().describe('mg, required — estimate it even roughly if unsure'),
+  sodium: z.number().describe('mg, required — estimate it even roughly if unsure'),
 });
 
 const UNIQUE_VIOLATION = '23505';
@@ -28,16 +28,16 @@ export function registerLogMealTool(server: McpServer, ctx: ToolContext): void {
     'log_meal',
     {
       description:
-        'Записывает приём пищи по уже посчитанным КБЖУ (расчёт делает сама модель по фото/описанию, этот инструмент только сохраняет). ' +
-        'fiber/sugar/saturated_fat/cholesterol/sodium обязательны для каждого продукта — оцени их наравне с КБЖУ, ' +
-        'даже если приблизительно, не оставляй пустыми. ' +
-        'client_ref — тот же токен при повторном вызове не создаёт дубль. Возвращает не просто "записано", а сводку за сегодня, остаток до цели и meal_id записи.',
+        'Logs a meal from already-calculated nutrients (you work them out from the photo or description; this tool only stores them). ' +
+        'fiber/sugar/saturated_fat/cholesterol/sodium are required for every item — estimate them alongside the calories and macros, ' +
+        'roughly if need be, but never leave them out. ' +
+        'client_ref: reusing the same token on a retry will not create a duplicate. Returns more than "saved" — the running day total, what is left against the goal, and the meal_id.',
       inputSchema: {
-        title: z.string().describe('Название приёма пищи'),
-        items: z.array(mealItemSchema).min(1).describe('Продукты, из которых состоит приём пищи'),
-        eaten_at: z.string().datetime({ offset: true }).optional().describe('ISO datetime, по умолчанию — сейчас'),
-        confidence: z.enum(['low', 'medium', 'high']).describe('Насколько уверенно оценены КБЖУ'),
-        client_ref: z.string().optional().describe('Ключ идемпотентности для повторных вызовов'),
+        title: z.string().describe('Meal title, written in the language the user is speaking'),
+        items: z.array(mealItemSchema).min(1).describe('The items this meal is made of'),
+        eaten_at: z.string().datetime({ offset: true }).optional().describe('ISO datetime, defaults to now'),
+        confidence: z.enum(['low', 'medium', 'high']).describe('How confident the nutrient estimate is'),
+        client_ref: z.string().optional().describe('Idempotency key for retried calls'),
       },
     },
     async ({ title, items, eaten_at, confidence, client_ref }): Promise<CallToolResult> => {
@@ -61,7 +61,7 @@ export function registerLogMealTool(server: McpServer, ctx: ToolContext): void {
             content: [
               {
                 type: 'text',
-                text: `Уже записано ранее: ${meal.title} — ${macroLine(meal.kcal, meal.protein, meal.fat, meal.carbs)} (id: ${meal.id})\n${summary}`,
+                text: `Already logged earlier: ${meal.title} — ${macroLine(meal.kcal, meal.protein, meal.fat, meal.carbs)} (id: ${meal.id})\n${summary}`,
               },
             ],
           };
@@ -108,7 +108,7 @@ export function registerLogMealTool(server: McpServer, ctx: ToolContext): void {
         content: [
           {
             type: 'text',
-            text: `Записано: ${title} — ${macroLine(totals.kcal, totals.protein, totals.fat, totals.carbs)} (id: ${(meal as Meal).id})\n${summary}`,
+            text: `Logged: ${title} — ${macroLine(totals.kcal, totals.protein, totals.fat, totals.carbs)} (id: ${(meal as Meal).id})\n${summary}`,
           },
         ],
       };

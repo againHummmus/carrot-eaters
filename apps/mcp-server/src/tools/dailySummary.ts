@@ -27,12 +27,12 @@ export async function todaySummaryLine(ctx: ToolContext, profile: Profile): Prom
   const remainingProtein = round(targets.protein - totals.protein);
 
   const lines = [
-    `Сегодня: ${round(totals.kcal)} из ${profile.kcal_target} ккал · Б${round(totals.protein)}/Ж${round(totals.fat)}/У${round(totals.carbs)}`,
+    `Today: ${round(totals.kcal)} of ${profile.kcal_target} kcal · P${round(totals.protein)}/F${round(totals.fat)}/C${round(totals.carbs)}`,
   ];
   if (remainingKcal >= 0) {
-    lines.push(`Осталось: ${remainingKcal} ккал${remainingProtein > 0 ? `, белка ещё ~${remainingProtein} г` : ''}`);
+    lines.push(`Remaining: ${remainingKcal} kcal${remainingProtein > 0 ? `, plus ~${remainingProtein} g of protein` : ''}`);
   } else {
-    lines.push(`Превышение: ${-remainingKcal} ккал сверх цели`);
+    lines.push(`Over goal by ${-remainingKcal} kcal`);
   }
   return lines.join('\n');
 }

@@ -1,19 +1,24 @@
 import type { Metadata, Viewport } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getTranslations } from 'next-intl/server';
 import './globals.css';
 
-export const metadata: Metadata = {
-  title: 'Carrot Eaters',
-  description: 'Трекер калорий и БЖУ',
-  manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'Carrot Eaters',
-  },
-  icons: {
-    apple: '/icons/apple-touch-icon.png',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('meta');
+  return {
+    title: t('title'),
+    description: t('description'),
+    manifest: '/manifest.json',
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'default',
+      title: t('title'),
+    },
+    icons: {
+      apple: '/icons/apple-touch-icon.png',
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: '#0f172a',
@@ -21,10 +26,15 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+
   return (
-    <html lang="ru">
-      <body className="min-h-screen antialiased">{children}</body>
+    <html lang={locale}>
+      <body className="min-h-screen antialiased">
+        {/* Inherits locale and messages from the request config — nothing to pass by hand. */}
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+      </body>
     </html>
   );
 }

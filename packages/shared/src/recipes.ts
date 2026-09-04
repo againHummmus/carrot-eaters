@@ -2,7 +2,7 @@ import type { NutrientAmounts } from './types.js';
 
 /**
  * One ingredient line, always stored per ONE serving.
- * `amount === null` means an unmeasured ingredient ("соль по вкусу") — it is never scaled.
+ * `amount === null` means an unmeasured ingredient ("salt to taste") — it is never scaled.
  */
 export interface RecipeIngredient {
   id: string;
@@ -49,10 +49,22 @@ export function scaleAmount(amount: number | null, servings: number): number | n
   return amount === null ? null : roundAmount(amount * servings);
 }
 
-/** "150 г" / "1.5 шт" / "по вкусу" — the display form of a scaled ingredient. */
-export function formatAmount(amount: number | null, unit: string | null): string {
-  if (amount === null) return 'по вкусу';
-  const number = Number.isInteger(amount) ? String(amount) : String(amount).replace('.', ',');
+/** Language-dependent bits of an ingredient amount. Defaults are English; the web app passes its own. */
+export interface AmountFormat {
+  /** Shown instead of a number for an unmeasured ingredient. */
+  toTaste?: string;
+  /** Decimal separator for fractional amounts. */
+  decimal?: string;
+}
+
+/**
+ * "150 g" / "1.5 pcs" / "to taste" — the display form of a scaled ingredient.
+ * The unit itself comes from user data and is never translated.
+ */
+export function formatAmount(amount: number | null, unit: string | null, format: AmountFormat = {}): string {
+  const { toTaste = 'to taste', decimal = '.' } = format;
+  if (amount === null) return toTaste;
+  const number = Number.isInteger(amount) ? String(amount) : String(amount).replace('.', decimal);
   return unit ? `${number} ${unit}` : number;
 }
 

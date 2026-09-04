@@ -12,12 +12,12 @@ export function registerGetStatsTool(server: McpServer, ctx: ToolContext): void 
     'get_stats',
     {
       description:
-        'Возвращает суммы КБЖУ за период [from, to] (обе даты включительно, YYYY-MM-DD). ' +
-        'При group_by="day" — разбивку по дням, иначе — только итог за весь период.',
+        'Returns nutrient totals for the period [from, to] (both dates inclusive, YYYY-MM-DD). ' +
+        'With group_by="day" it also breaks the period down by day; otherwise it returns only the overall total.',
       inputSchema: {
-        from: dateSchema.describe('Начало периода, YYYY-MM-DD'),
-        to: dateSchema.describe('Конец периода, YYYY-MM-DD, включительно'),
-        group_by: z.enum(['day', 'total']).optional().describe('По умолчанию total'),
+        from: dateSchema.describe('Start of the period, YYYY-MM-DD'),
+        to: dateSchema.describe('End of the period, YYYY-MM-DD, inclusive'),
+        group_by: z.enum(['day', 'total']).optional().describe('Defaults to total'),
       },
     },
     async ({ from, to, group_by }): Promise<CallToolResult> => {
@@ -45,7 +45,10 @@ export function registerGetStatsTool(server: McpServer, ctx: ToolContext): void 
         { kcal: 0, protein: 0, fat: 0, carbs: 0 }
       );
 
-      const lines = [`Период ${from} — ${to} (${rows.length} приёмов пищи)`, `Итого: ${macroLine(total.kcal, total.protein, total.fat, total.carbs)}`];
+      const lines = [
+        `Period ${from} — ${to} (${rows.length} ${rows.length === 1 ? 'meal' : 'meals'})`,
+        `Total: ${macroLine(total.kcal, total.protein, total.fat, total.carbs)}`,
+      ];
 
       if (group_by === 'day') {
         const byDay = new Map<string, { kcal: number; protein: number; fat: number; carbs: number }>();
@@ -58,13 +61,13 @@ export function registerGetStatsTool(server: McpServer, ctx: ToolContext): void 
           acc.carbs += Number(row.carbs);
           byDay.set(key, acc);
         }
-        lines.push('По дням:');
+        lines.push('By day:');
         for (const [day, sums] of [...byDay.entries()].sort()) {
           lines.push(`  ${day}: ${macroLine(sums.kcal, sums.protein, sums.fat, sums.carbs)}`);
         }
         if (rows.length > 0) {
           const days = byDay.size || 1;
-          lines.push(`Среднее в день: ${macroLine(total.kcal / days, total.protein / days, total.fat / days, total.carbs / days)}`);
+          lines.push(`Daily average: ${macroLine(total.kcal / days, total.protein / days, total.fat / days, total.carbs / days)}`);
         }
       }
 

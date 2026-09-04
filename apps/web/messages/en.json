@@ -1,0 +1,137 @@
+{
+  "meta": {
+    "title": "Carrot Eaters",
+    "description": "Calorie and macro tracker"
+  },
+  "common": {
+    "kcal": "kcal",
+    "g": "g",
+    "mg": "mg",
+    "decimal": ".",
+    "macroLine": "P{protein}/F{fat}/C{carbs}",
+    "language": "Language"
+  },
+  "nav": {
+    "menu": "Menu",
+    "today": "Today",
+    "history": "History",
+    "recipes": "Recipes",
+    "settings": "Settings",
+    "signOut": "Sign out"
+  },
+  "login": {
+    "title": "Welcome back",
+    "subtitle": "Sign in to see your progress",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "noAccount": "No account yet?",
+    "register": "Sign up"
+  },
+  "register": {
+    "title": "Create an account",
+    "subtitle": "One setting, and you can log meals through Claude",
+    "email": "Email",
+    "password": "Password (at least 6 characters)",
+    "submit": "Create account",
+    "submitting": "Creating…",
+    "checkEmail": "Check your inbox and confirm your email, then sign in.",
+    "haveAccount": "Already have an account?",
+    "login": "Sign in"
+  },
+  "onboarding": {
+    "title": "Welcome",
+    "subtitle": "Just one setting — your calorie goal. Protein/fat/carbs are worked out automatically (30/30/40).",
+    "name": "Name",
+    "namePlaceholder": "Yana",
+    "kcalTarget": "Daily calorie goal",
+    "timezone": "Time zone",
+    "submit": "Continue",
+    "invalid": "Enter your name and a valid calorie goal"
+  },
+  "dashboard": {
+    "greeting": "Hi, {name}",
+    "title": "Today",
+    "empty": "Nothing logged today yet."
+  },
+  "day": {
+    "calories": "Calories",
+    "protein": "Protein",
+    "fat": "Fat",
+    "carbs": "Carbs",
+    "extraTitle": "More · average norm",
+    "fiber": "Fiber",
+    "sugar": "Sugar",
+    "saturatedFat": "Saturated fat",
+    "cholesterol": "Cholesterol",
+    "sodium": "Sodium",
+    "averageNote": "average norm, not a personal goal",
+    "meals": "Meals"
+  },
+  "meal": {
+    "rename": "Rename",
+    "delete": "Delete",
+    "confirmDelete": "Delete “{title}”?",
+    "grams": "{grams} g"
+  },
+  "history": {
+    "title": "History",
+    "week": "Week",
+    "month": "Month",
+    "show": "Show",
+    "mealsCount": "{count, plural, one {# meal} other {# meals}}",
+    "total": "total",
+    "perDay": "Daily average:",
+    "outOf": "of {target}",
+    "macroCompare": "P{protein}/{proteinTarget} · F{fat}/{fatTarget} · C{carbs}/{carbsTarget}",
+    "empty": "Nothing logged in this period.",
+    "dayEmpty": "Nothing was logged on this day.",
+    "today": "Today"
+  },
+  "recipes": {
+    "title": "Recipes",
+    "subtitle": "Everything is stored per single serving — open a recipe to scale it to any number.",
+    "empty": "No recipes yet. Ask Claude to “save this recipe” and it will show up here.",
+    "searchPlaceholder": "Search by name or ingredient",
+    "searchLabel": "Search recipes",
+    "clearSearch": "Clear search",
+    "nothingFound": "Nothing found for “{query}”.",
+    "perServing": "per serving"
+  },
+  "recipe": {
+    "back": "All recipes",
+    "servings": "Servings",
+    "servingsHint": "Amounts are rescaled automatically",
+    "servingsCount": "{count, plural, one {# serving} other {# servings}}",
+    "fewerServings": "Fewer servings",
+    "moreServings": "More servings",
+    "ingredients": "Ingredients",
+    "checkedOf": "{checked} of {total}",
+    "reset": "Reset",
+    "toTaste": "to taste",
+    "nutrition": "Nutrition",
+    "steps": "Method"
+  },
+  "settings": {
+    "title": "Settings",
+    "kcalTarget": "Daily calorie goal",
+    "macroNote": "Macros follow automatically: P{protein}/F{fat}/C{carbs} g",
+    "timezone": "Time zone",
+    "save": "Save",
+    "signOut": "Sign out",
+    "invalid": "Invalid values"
+  },
+  "consent": {
+    "title": "Allow access?",
+    "requests": "is requesting access to your Carrot Eaters data.",
+    "app": "Application:",
+    "redirectUri": "Redirect URI:",
+    "scopes": "Permissions:",
+    "allow": "Allow",
+    "deny": "Deny",
+    "missingId": "Missing authorization_id.",
+    "invalidRequest": "Invalid authorization request.",
+    "errorPrefix": "Error:"
+  }
+}

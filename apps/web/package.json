@@ -4,15 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "cd ../.. && npm run build -w packages/shared && cd apps/web && next build --webpack",
+    "build": "cd ../.. && npm run build -w packages/shared && cd apps/web && node scripts/check-messages.mjs && next build --webpack",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:messages": "node scripts/check-messages.mjs"
   },
   "dependencies": {
     "@carrot-eaters/shared": "*",
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
     "next": "^16.3.4",
+    "next-intl": "^4.14.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

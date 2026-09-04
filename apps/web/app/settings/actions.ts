@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
+import { getTranslations } from 'next-intl/server';
 
 export async function updateSettings(formData: FormData) {
   const { supabase, userId } = await requireUser();
@@ -11,7 +12,8 @@ export async function updateSettings(formData: FormData) {
   const timezone = String(formData.get('timezone') ?? '').trim();
 
   if (!Number.isFinite(kcalTarget) || kcalTarget <= 0 || !timezone) {
-    throw new Error('Некорректные значения');
+    const t = await getTranslations('settings');
+    throw new Error(t('invalid'));
   }
 
   const { error } = await supabase.from('profiles').update({ kcal_target: kcalTarget, timezone }).eq('user_id', userId);

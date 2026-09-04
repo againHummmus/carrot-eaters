@@ -15,20 +15,20 @@ export function registerLogRecipePortionTool(server: McpServer, ctx: ToolContext
     'log_recipe_portion',
     {
       description:
-        'Логирует приём пищи из сохранённого рецепта одной фразой, без пересчёта КБЖУ — берёт нутриенты порции из книги рецептов ' +
-        'и умножает на число порций. Укажи recipe_id или recipe_title (поиск по названию). ' +
-        'Если рецепт ещё не сохранён — сначала save_recipe, либо логируй как обычный приём пищи через log_meal.',
+        'Logs a meal from a saved recipe in one step, with no nutrient estimation — it takes the per-serving nutrients from the ' +
+        'recipe book and multiplies them by the number of servings. Pass recipe_id or recipe_title (searched by title). ' +
+        'If the recipe is not saved yet, call save_recipe first, or log the food directly with log_meal.',
       inputSchema: {
-        recipe_id: z.string().uuid().optional().describe('ID рецепта, если известен'),
-        recipe_title: z.string().optional().describe('Название рецепта для поиска, если id неизвестен'),
-        servings: z.number().positive().optional().describe('Сколько порций съедено, по умолчанию 1'),
-        eaten_at: z.string().datetime({ offset: true }).optional().describe('ISO datetime, по умолчанию — сейчас'),
-        client_ref: z.string().optional().describe('Ключ идемпотентности для повторных вызовов'),
+        recipe_id: z.string().uuid().optional().describe('Recipe id, when known'),
+        recipe_title: z.string().optional().describe('Recipe title to search by, when the id is unknown'),
+        servings: z.number().positive().optional().describe('How many servings were eaten, defaults to 1'),
+        eaten_at: z.string().datetime({ offset: true }).optional().describe('ISO datetime, defaults to now'),
+        client_ref: z.string().optional().describe('Idempotency key for retried calls'),
       },
     },
     async ({ recipe_id, recipe_title, servings, eaten_at, client_ref }): Promise<CallToolResult> => {
       if (!recipe_id && !recipe_title) {
-        return { content: [{ type: 'text', text: 'Укажи recipe_id или recipe_title.' }], isError: true };
+        return { content: [{ type: 'text', text: 'Provide either recipe_id or recipe_title.' }], isError: true };
       }
 
       const profile = await fetchProfile(ctx);
@@ -43,8 +43,8 @@ export function registerLogRecipePortionTool(server: McpServer, ctx: ToolContext
             {
               type: 'text',
               text:
-                `Рецепт не найден по запросу «${recipe_id ?? recipe_title}». Посмотри список через list_recipes, ` +
-                'сохрани рецепт через save_recipe или залогируй еду напрямую через log_meal.',
+                `No recipe found for "${recipe_id ?? recipe_title}". Check the list with list_recipes, ` +
+                'save the recipe with save_recipe, or log the food directly with log_meal.',
             },
           ],
         };
@@ -52,7 +52,9 @@ export function registerLogRecipePortionTool(server: McpServer, ctx: ToolContext
 
       const portions = servings ?? 1;
       const totals = scaleNutrients(recipe, portions);
-      const title = portions === 1 ? recipe.title : `${recipe.title} (${portions} порц.)`;
+      // This title is persisted and rendered verbatim in the web app, whose language is the user's
+      // own choice — so the multi-serving marker stays a language-neutral "×N" rather than a word.
+      const title = portions === 1 ? recipe.title : `${recipe.title} ×${portions}`;
 
       if (client_ref) {
         const { data: existing, error: findError } = await ctx.db
@@ -69,7 +71,7 @@ export function registerLogRecipePortionTool(server: McpServer, ctx: ToolContext
             content: [
               {
                 type: 'text',
-                text: `Уже записано ранее: ${meal.title} — ${macroLine(meal.kcal, meal.protein, meal.fat, meal.carbs)} (id: ${meal.id})\n${summary}`,
+                text: `Already logged earlier: ${meal.title} — ${macroLine(meal.kcal, meal.protein, meal.fat, meal.carbs)} (id: ${meal.id})\n${summary}`,
               },
             ],
           };
@@ -118,7 +120,7 @@ export function registerLogRecipePortionTool(server: McpServer, ctx: ToolContext
         content: [
           {
             type: 'text',
-            text: `Записано: ${title} — ${macroLine(totals.kcal, totals.protein, totals.fat, totals.carbs)} (id: ${(meal as Meal).id})\n${summary}`,
+            text: `Logged: ${title} — ${macroLine(totals.kcal, totals.protein, totals.fat, totals.carbs)} (id: ${(meal as Meal).id})\n${summary}`,
           },
         ],
       };

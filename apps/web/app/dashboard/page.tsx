@@ -3,8 +3,10 @@ import { requireUser, fetchProfile } from '@/lib/auth';
 import { todayRangeUtc, type MealWithItems } from '@carrot-eaters/shared';
 import { AppHeader } from '@/components/AppHeader';
 import { DaySummary } from '@/components/DaySummary';
+import { getTranslations } from 'next-intl/server';
 
 export default async function DashboardPage() {
+  const t = await getTranslations('dashboard');
   const { supabase, userId } = await requireUser();
   const profile = await fetchProfile(supabase, userId);
   if (!profile) redirect('/onboarding');
@@ -27,11 +29,11 @@ export default async function DashboardPage() {
 
       <main className="mx-auto flex max-w-2xl flex-col gap-5 px-4 pb-24 pt-4">
         <div className="animate-fade-in-up">
-          <p className="text-sm text-slate-500">Привет, {profile.name}</p>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Сегодня</h1>
+          <p className="text-sm text-slate-500">{t('greeting', { name: profile.name })}</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{t('title')}</h1>
         </div>
 
-        <DaySummary meals={meals} profile={profile} emptyText="Пока ничего не записано сегодня." />
+        <DaySummary meals={meals} profile={profile} emptyText={t('empty')} />
       </main>
     </div>
   );

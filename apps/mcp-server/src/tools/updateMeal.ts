@@ -12,11 +12,11 @@ const mealItemSchema = z.object({
   protein: z.number(),
   fat: z.number(),
   carbs: z.number(),
-  fiber: z.number().describe('г, обязательно — оцени даже приблизительно, если не уверен(а)'),
-  sugar: z.number().describe('г, обязательно — оцени даже приблизительно, если не уверен(а)'),
-  saturated_fat: z.number().describe('г, обязательно — оцени даже приблизительно, если не уверен(а)'),
-  cholesterol: z.number().describe('мг, обязательно — оцени даже приблизительно, если не уверен(а)'),
-  sodium: z.number().describe('мг, обязательно — оцени даже приблизительно, если не уверен(а)'),
+  fiber: z.number().describe('g, required — estimate it even roughly if unsure'),
+  sugar: z.number().describe('g, required — estimate it even roughly if unsure'),
+  saturated_fat: z.number().describe('g, required — estimate it even roughly if unsure'),
+  cholesterol: z.number().describe('mg, required — estimate it even roughly if unsure'),
+  sodium: z.number().describe('mg, required — estimate it even roughly if unsure'),
 });
 
 export function registerUpdateMealTool(server: McpServer, ctx: ToolContext): void {
@@ -24,9 +24,9 @@ export function registerUpdateMealTool(server: McpServer, ctx: ToolContext): voi
     'update_meal',
     {
       description:
-        'Правит уже записанный приём пищи: title, eaten_at и/или items (полный новый список продуктов — если передан, ' +
-        'КБЖУ пересчитываются с нуля из него). Передавай только те поля, которые нужно поменять. ' +
-        'meal_id заранее неизвестен — сначала вызови list_meals, чтобы его найти.',
+        'Edits an already-logged meal: title, eaten_at and/or items (a complete replacement list — when given, ' +
+        'the meal nutrients are recalculated from it from scratch). Pass only the fields you want to change. ' +
+        'You do not know the meal_id up front — call list_meals first to find it.',
       inputSchema: {
         meal_id: z.string().uuid(),
         title: z.string().optional(),
@@ -43,7 +43,7 @@ export function registerUpdateMealTool(server: McpServer, ctx: ToolContext): voi
         .maybeSingle();
       if (findError) throw new Error(findError.message);
       if (!existing) {
-        return { content: [{ type: 'text', text: 'Приём пищи не найден.' }], isError: true };
+        return { content: [{ type: 'text', text: 'Meal not found.' }], isError: true };
       }
 
       const update: Record<string, unknown> = {};
@@ -68,7 +68,7 @@ export function registerUpdateMealTool(server: McpServer, ctx: ToolContext): voi
         content: [
           {
             type: 'text',
-            text: `Обновлено: ${meal.title} — ${macroLine(meal.kcal, meal.protein, meal.fat, meal.carbs)}`,
+            text: `Updated: ${meal.title} — ${macroLine(meal.kcal, meal.protein, meal.fat, meal.carbs)}`,
           },
         ],
       };

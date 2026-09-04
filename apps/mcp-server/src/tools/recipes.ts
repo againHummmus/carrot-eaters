@@ -12,16 +12,23 @@ import type { ToolContext } from './context.js';
 import { round, macroLine } from '../format.js';
 
 const ingredientSchema = z.object({
-  name: z.string().describe('Название продукта'),
+  name: z.string().describe('Ingredient name, written in the language the user is speaking'),
   amount: z
     .number()
     .nullable()
     .optional()
-    .describe('Количество НА ОДНУ ПОРЦИЮ. null или пропуск — «по вкусу» (соль, специи), такое не масштабируется'),
-  unit: z.string().nullable().optional().describe('Единица: г, мл, шт, ст. л., ч. л. …'),
+    .describe('Amount PER SINGLE SERVING. null or omitted means "to taste" (salt, spices) and is never scaled'),
+  unit: z
+    .string()
+    .nullable()
+    .optional()
+    .describe(
+      'Unit, written the way the user would write it, in their own language (г, мл, шт, ст. л. / g, ml, pcs, tbsp). ' +
+        'Stored verbatim and shown as-is in the web app, which never translates units — so keep it consistent with the rest of the recipe.'
+    ),
 });
 
-const PER_SERVING = 'НА ОДНУ ПОРЦИЮ';
+const PER_SERVING = 'PER SINGLE SERVING';
 
 /** Loads one recipe of the current user by id or by (case-insensitive, partial) title. */
 export async function findRecipe(
@@ -46,25 +53,24 @@ export async function findRecipe(
 
 function renderRecipe(recipe: RecipeWithIngredients, servings: number): string {
   const n = scaleNutrients(recipe, servings);
-  const portionWord = servings === 1 ? '1 порцию' : `${servings} порц.`;
 
-  const lines: string[] = [`«${recipe.title}» — на ${portionWord}`];
+  const lines: string[] = [`"${recipe.title}" — for ${servings} ${servings === 1 ? 'serving' : 'servings'}`];
   if (recipe.description) lines.push(recipe.description);
 
-  lines.push('', 'Ингредиенты:');
+  lines.push('', 'Ingredients:');
   for (const ingredient of recipe.ingredients) {
     lines.push(`— ${ingredient.name}: ${formatAmount(scaleAmount(ingredient.amount, servings), ingredient.unit)}`);
   }
 
   if (recipe.steps.length > 0) {
-    lines.push('', 'Приготовление:', ...recipe.steps.map((step, i) => `${i + 1}. ${step}`));
+    lines.push('', 'Method:', ...recipe.steps.map((step, i) => `${i + 1}. ${step}`));
   }
 
   lines.push(
     '',
-    `КБЖУ: ${macroLine(n.kcal, n.protein, n.fat, n.carbs)}`,
-    `Клетчатка ${round(n.fiber ?? 0)} г · сахар ${round(n.sugar ?? 0)} г · нас. жиры ${round(n.saturated_fat ?? 0)} г · ` +
-      `холестерин ${round(n.cholesterol ?? 0)} мг · натрий ${round(n.sodium ?? 0)} мг`,
+    `Nutrition: ${macroLine(n.kcal, n.protein, n.fat, n.carbs)}`,
+    `Fiber ${round(n.fiber ?? 0)} g · sugar ${round(n.sugar ?? 0)} g · saturated fat ${round(n.saturated_fat ?? 0)} g · ` +
+      `cholesterol ${round(n.cholesterol ?? 0)} mg · sodium ${round(n.sodium ?? 0)} mg`,
     `(id: ${recipe.id})`
   );
 
@@ -76,24 +82,29 @@ export function registerRecipeTools(server: McpServer, ctx: ToolContext): void {
     'save_recipe',
     {
       description:
-        'Сохраняет рецепт в личную книгу рецептов пользователя. Вызывай, когда пользователь просит записать/сохранить рецепт. ' +
-        `ВСЁ — и количество ингредиентов, и КБЖУ — указывай ${PER_SERVING}: в вебе пользователь сам выставит нужное число порций, ` +
-        'и количества пересчитаются. fiber/sugar/saturated_fat/cholesterol/sodium обязательны — оцени их наравне с КБЖУ, ' +
-        'даже приблизительно. Если рецепт с таким же названием уже есть у пользователя — он будет перезаписан.',
+        "Saves a recipe to the user's personal recipe book. Call this when the user asks to write down or save a recipe. " +
+        `EVERYTHING — ingredient amounts and nutrients alike — must be given ${PER_SERVING}: in the web app the user picks ` +
+        'the number of servings and the amounts are rescaled from there. fiber/sugar/saturated_fat/cholesterol/sodium are ' +
+        'required — estimate them alongside the calories and macros, roughly if need be. Title, description, ingredients and ' +
+        'steps are stored verbatim and shown in the web app, so write them in the language the user is speaking. ' +
+        'An existing recipe with the same title is overwritten.',
       inputSchema: {
-        title: z.string().min(1).describe('Название рецепта'),
-        description: z.string().optional().describe('Короткое описание, 1–2 предложения'),
-        ingredients: z.array(ingredientSchema).min(1).describe(`Продукты в расчёте ${PER_SERVING}`),
-        steps: z.array(z.string()).min(1).describe('Шаги приготовления по порядку, без нумерации в самом тексте'),
-        kcal: z.number().describe(`Калории ${PER_SERVING}`),
-        protein: z.number().describe(`Белки, г, ${PER_SERVING}`),
-        fat: z.number().describe(`Жиры, г, ${PER_SERVING}`),
-        carbs: z.number().describe(`Углеводы, г, ${PER_SERVING}`),
-        fiber: z.number().describe(`Клетчатка, г, ${PER_SERVING} — обязательно, оцени хотя бы приблизительно`),
-        sugar: z.number().describe(`Сахар, г, ${PER_SERVING} — обязательно, оцени хотя бы приблизительно`),
-        saturated_fat: z.number().describe(`Насыщенные жиры, г, ${PER_SERVING} — обязательно`),
-        cholesterol: z.number().describe(`Холестерин, мг, ${PER_SERVING} — обязательно`),
-        sodium: z.number().describe(`Натрий, мг, ${PER_SERVING} — обязательно`),
+        title: z.string().min(1).describe("Recipe title, in the user's language"),
+        description: z.string().optional().describe("Short description, 1–2 sentences, in the user's language"),
+        ingredients: z.array(ingredientSchema).min(1).describe(`Ingredients, ${PER_SERVING}`),
+        steps: z
+          .array(z.string())
+          .min(1)
+          .describe("Method steps in order, in the user's language, without numbering inside the text itself"),
+        kcal: z.number().describe(`Calories ${PER_SERVING}`),
+        protein: z.number().describe(`Protein, g, ${PER_SERVING}`),
+        fat: z.number().describe(`Fat, g, ${PER_SERVING}`),
+        carbs: z.number().describe(`Carbs, g, ${PER_SERVING}`),
+        fiber: z.number().describe(`Fiber, g, ${PER_SERVING} — required, estimate it even roughly`),
+        sugar: z.number().describe(`Sugar, g, ${PER_SERVING} — required, estimate it even roughly`),
+        saturated_fat: z.number().describe(`Saturated fat, g, ${PER_SERVING} — required`),
+        cholesterol: z.number().describe(`Cholesterol, mg, ${PER_SERVING} — required`),
+        sodium: z.number().describe(`Sodium, mg, ${PER_SERVING} — required`),
       },
     },
     async ({ title, description, ingredients, steps, ...nutrients }): Promise<CallToolResult> => {
@@ -135,15 +146,15 @@ export function registerRecipeTools(server: McpServer, ctx: ToolContext): void {
       );
       if (ingredientsError) throw new Error(ingredientsError.message);
 
-      const verb = sameTitle ? 'Рецепт обновлён' : 'Рецепт сохранён';
+      const verb = sameTitle ? 'Recipe updated' : 'Recipe saved';
       return {
         content: [
           {
             type: 'text',
             text:
-              `${verb}: «${title}» — ${ingredients.length} ингр., шагов: ${steps.length}, ` +
-              `${macroLine(nutrients.kcal, nutrients.protein, nutrients.fat, nutrients.carbs)} на порцию.\n` +
-              `В вебе на странице «Рецепты» можно выставить число порций и пересчитать ингредиенты. (id: ${recipeId})`,
+              `${verb}: "${title}" — ${ingredients.length} ingredients, ${steps.length} steps, ` +
+              `${macroLine(nutrients.kcal, nutrients.protein, nutrients.fat, nutrients.carbs)} per serving.\n` +
+              `On the Recipes page in the web app the user can set the number of servings and rescale the ingredients. (id: ${recipeId})`,
           },
         ],
       };
@@ -154,10 +165,10 @@ export function registerRecipeTools(server: McpServer, ctx: ToolContext): void {
     'list_recipes',
     {
       description:
-        'Показывает сохранённые рецепты пользователя (название, КБЖУ на порцию, id). ' +
-        'Вызывай перед get_recipe, log_recipe_portion или delete_recipe, если id рецепта неизвестен.',
+        'Lists the saved recipes (title, per-serving nutrients, id). ' +
+        'Call this before get_recipe, log_recipe_portion or delete_recipe when you do not know the recipe id.',
       inputSchema: {
-        query: z.string().optional().describe('Фильтр по части названия'),
+        query: z.string().optional().describe('Filter by part of the title'),
       },
     },
     async ({ query }): Promise<CallToolResult> => {
@@ -179,17 +190,17 @@ export function registerRecipeTools(server: McpServer, ctx: ToolContext): void {
             {
               type: 'text',
               text: query
-                ? `Рецептов по запросу «${query}» нет.`
-                : 'Книга рецептов пока пуста. Сохрани первый рецепт через save_recipe.',
+                ? `No recipes match "${query}".`
+                : 'The recipe book is empty. Save the first recipe with save_recipe.',
             },
           ],
         };
       }
 
       const lines = recipes.map(
-        (recipe) => `— «${recipe.title}» — ${macroLine(recipe.kcal, recipe.protein, recipe.fat, recipe.carbs)} на порцию (id: ${recipe.id})`
+        (recipe) => `— "${recipe.title}" — ${macroLine(recipe.kcal, recipe.protein, recipe.fat, recipe.carbs)} per serving (id: ${recipe.id})`
       );
-      return { content: [{ type: 'text', text: `Рецептов: ${recipes.length}\n${lines.join('\n')}` }] };
+      return { content: [{ type: 'text', text: `Recipes: ${recipes.length}\n${lines.join('\n')}` }] };
     }
   );
 
@@ -197,21 +208,21 @@ export function registerRecipeTools(server: McpServer, ctx: ToolContext): void {
     'get_recipe',
     {
       description:
-        'Возвращает полный рецепт: ингредиенты, шаги приготовления и КБЖУ. ' +
-        'servings пересчитывает и ингредиенты, и нутриенты на нужное число порций.',
+        'Returns the full recipe: ingredients, method steps and nutrients. ' +
+        'servings rescales both the ingredients and the nutrients to that number of servings.',
       inputSchema: {
-        recipe_id: z.string().uuid().optional().describe('ID рецепта, если известен'),
-        title: z.string().optional().describe('Название рецепта для поиска, если id неизвестен'),
-        servings: z.number().positive().optional().describe('На сколько порций пересчитать, по умолчанию 1'),
+        recipe_id: z.string().uuid().optional().describe('Recipe id, when known'),
+        title: z.string().optional().describe('Recipe title to search by, when the id is unknown'),
+        servings: z.number().positive().optional().describe('Number of servings to scale to, defaults to 1'),
       },
     },
     async ({ recipe_id, title, servings }): Promise<CallToolResult> => {
       if (!recipe_id && !title) {
-        return { content: [{ type: 'text', text: 'Укажи recipe_id или title.' }], isError: true };
+        return { content: [{ type: 'text', text: 'Provide either recipe_id or title.' }], isError: true };
       }
       const recipe = await findRecipe(ctx, { recipe_id, title });
       if (!recipe) {
-        return { content: [{ type: 'text', text: `Рецепт не найден по запросу «${recipe_id ?? title}».` }] };
+        return { content: [{ type: 'text', text: `No recipe found for "${recipe_id ?? title}".` }] };
       }
       return { content: [{ type: 'text', text: renderRecipe(recipe, servings ?? 1) }] };
     }
@@ -221,9 +232,9 @@ export function registerRecipeTools(server: McpServer, ctx: ToolContext): void {
     'delete_recipe',
     {
       description:
-        'Удаляет рецепт из книги рецептов вместе с ингредиентами. Принимает recipe_id, а не название — сначала найди его через list_recipes.',
+        'Deletes a recipe from the recipe book along with its ingredients. Takes a recipe_id rather than a title — look it up with list_recipes first.',
       inputSchema: {
-        recipe_id: z.string().uuid().describe('ID рецепта из list_recipes'),
+        recipe_id: z.string().uuid().describe('Recipe id from list_recipes'),
       },
     },
     async ({ recipe_id }): Promise<CallToolResult> => {
@@ -236,9 +247,9 @@ export function registerRecipeTools(server: McpServer, ctx: ToolContext): void {
         .maybeSingle();
       if (error) throw new Error(error.message);
       if (!data) {
-        return { content: [{ type: 'text', text: `Рецепт ${recipe_id} не найден.` }] };
+        return { content: [{ type: 'text', text: `Recipe ${recipe_id} not found.` }] };
       }
-      return { content: [{ type: 'text', text: `Рецепт «${(data as { title: string }).title}» удалён.` }] };
+      return { content: [{ type: 'text', text: `Recipe "${(data as { title: string }).title}" deleted.` }] };
     }
   );
 }

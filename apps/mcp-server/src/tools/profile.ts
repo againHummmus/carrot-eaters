@@ -6,7 +6,7 @@ import type { Profile } from '@carrot-eaters/shared';
 import type { ToolContext } from './context.js';
 
 export const NO_PROFILE_HINT =
-  'Профиль не настроен. Спроси у пользователя имя и дневную цель по калориям (только калории — Б/Ж/У считаются автоматически), затем вызови setup_profile.';
+  'No profile set up yet. Ask the user for their name and daily calorie goal (calories only — protein/fat/carbs are derived automatically), then call setup_profile.';
 
 export async function fetchProfile(ctx: ToolContext): Promise<Profile | null> {
   const { data, error } = await ctx.db.from('profiles').select('*').eq('user_id', ctx.userId).maybeSingle();
@@ -17,9 +17,9 @@ export async function fetchProfile(ctx: ToolContext): Promise<Profile | null> {
 function profileSummary(profile: Profile): string {
   const targets = macroTargets(profile.kcal_target);
   return [
-    `Имя: ${profile.name}`,
-    `Таймзона: ${profile.timezone}`,
-    `Цель: ${profile.kcal_target} ккал (Б${targets.protein}/Ж${targets.fat}/У${targets.carbs})`,
+    `Name: ${profile.name}`,
+    `Time zone: ${profile.timezone}`,
+    `Goal: ${profile.kcal_target} kcal (P${targets.protein}/F${targets.fat}/C${targets.carbs})`,
   ].join('\n');
 }
 
@@ -28,8 +28,8 @@ export function registerProfileTools(server: McpServer, ctx: ToolContext): void 
     'get_profile',
     {
       description:
-        'Возвращает профиль текущего пользователя (имя, таймзона, цель по калориям и вычисленные цели по БЖУ). ' +
-        'Вызывай перед первым логированием еды в разговоре. Если профиля нет — вернёт явную подсказку, что делать дальше.',
+        'Returns the current user profile (name, time zone, calorie goal and the derived macro targets). ' +
+        'Call this before logging food for the first time in a conversation. If there is no profile, it returns an explicit hint on what to do next.',
       inputSchema: {},
     },
     async (): Promise<CallToolResult> => {
@@ -45,12 +45,12 @@ export function registerProfileTools(server: McpServer, ctx: ToolContext): void 
     'setup_profile',
     {
       description:
-        'Создаёт профиль пользователя. Вызывай, когда get_profile вернул подсказку об отсутствии профиля. ' +
-        'Целевые Б/Ж/У отдельно не запрашивай — считаются автоматически от kcal_target (30/30/40).',
+        'Creates the user profile. Call this when get_profile reported that no profile exists. ' +
+        'Do not ask for macro targets separately — they are derived from kcal_target (30/30/40).',
       inputSchema: {
-        name: z.string().min(1).describe('Имя пользователя'),
-        kcal_target: z.number().positive().describe('Дневная цель по калориям'),
-        timezone: z.string().optional().describe('IANA таймзона, по умолчанию Europe/Belgrade'),
+        name: z.string().min(1).describe('User name'),
+        kcal_target: z.number().positive().describe('Daily calorie goal'),
+        timezone: z.string().optional().describe('IANA time zone, defaults to Europe/Belgrade'),
       },
     },
     async ({ name, kcal_target, timezone }): Promise<CallToolResult> => {
@@ -66,7 +66,7 @@ export function registerProfileTools(server: McpServer, ctx: ToolContext): void 
         content: [
           {
             type: 'text',
-            text: `Профиль создан.\n${profileSummary(data as Profile)}\n(Б${targets.protein}/Ж${targets.fat}/У${targets.carbs} — расчёт от калорийности)`,
+            text: `Profile created.\n${profileSummary(data as Profile)}\n(P${targets.protein}/F${targets.fat}/C${targets.carbs} — derived from the calorie goal)`,
           },
         ],
       };
@@ -76,9 +76,9 @@ export function registerProfileTools(server: McpServer, ctx: ToolContext): void 
   server.registerTool(
     'update_targets',
     {
-      description: 'Обновляет дневную цель по калориям. Целевые Б/Ж/У пересчитываются автоматически.',
+      description: 'Updates the daily calorie goal. Macro targets are recalculated automatically.',
       inputSchema: {
-        kcal_target: z.number().positive().describe('Новая дневная цель по калориям'),
+        kcal_target: z.number().positive().describe('New daily calorie goal'),
       },
     },
     async ({ kcal_target }): Promise<CallToolResult> => {
@@ -100,7 +100,7 @@ export function registerProfileTools(server: McpServer, ctx: ToolContext): void 
         content: [
           {
             type: 'text',
-            text: `Цель обновлена: ${kcal_target} ккал (Б${targets.protein}/Ж${targets.fat}/У${targets.carbs})`,
+            text: `Goal updated: ${kcal_target} kcal (P${targets.protein}/F${targets.fat}/C${targets.carbs})`,
           },
         ],
       };

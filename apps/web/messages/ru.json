@@ -1,0 +1,137 @@
+{
+  "meta": {
+    "title": "Carrot Eaters",
+    "description": "Трекер калорий и БЖУ"
+  },
+  "common": {
+    "kcal": "ккал",
+    "g": "г",
+    "mg": "мг",
+    "decimal": ",",
+    "macroLine": "Б{protein}/Ж{fat}/У{carbs}",
+    "language": "Язык"
+  },
+  "nav": {
+    "menu": "Меню",
+    "today": "Сегодня",
+    "history": "История",
+    "recipes": "Рецепты",
+    "settings": "Настройки",
+    "signOut": "Выйти"
+  },
+  "login": {
+    "title": "С возвращением",
+    "subtitle": "Войди, чтобы увидеть свой прогресс",
+    "email": "Email",
+    "password": "Пароль",
+    "submit": "Войти",
+    "submitting": "Входим…",
+    "noAccount": "Нет аккаунта?",
+    "register": "Зарегистрироваться"
+  },
+  "register": {
+    "title": "Создать аккаунт",
+    "subtitle": "Один параметр, и можно логировать еду через Клода",
+    "email": "Email",
+    "password": "Пароль (минимум 6 символов)",
+    "submit": "Создать аккаунт",
+    "submitting": "Создаём…",
+    "checkEmail": "Проверьте почту и подтвердите email, затем войдите.",
+    "haveAccount": "Уже есть аккаунт?",
+    "login": "Войти"
+  },
+  "onboarding": {
+    "title": "Добро пожаловать",
+    "subtitle": "Всего один параметр — цель по калориям. Белки/жиры/углеводы посчитаются автоматически (30/30/40).",
+    "name": "Имя",
+    "namePlaceholder": "Яна",
+    "kcalTarget": "Дневная цель по калориям",
+    "timezone": "Таймзона",
+    "submit": "Продолжить",
+    "invalid": "Заполните имя и корректную цель по калориям"
+  },
+  "dashboard": {
+    "greeting": "Привет, {name}",
+    "title": "Сегодня",
+    "empty": "Пока ничего не записано сегодня."
+  },
+  "day": {
+    "calories": "Калории",
+    "protein": "Белки",
+    "fat": "Жиры",
+    "carbs": "Углеводы",
+    "extraTitle": "Дополнительно · средняя норма",
+    "fiber": "Клетчатка",
+    "sugar": "Сахар",
+    "saturatedFat": "Насыщенные жиры",
+    "cholesterol": "Холестерин",
+    "sodium": "Натрий",
+    "averageNote": "средняя норма, не персональная цель",
+    "meals": "Приёмы пищи"
+  },
+  "meal": {
+    "rename": "Переименовать",
+    "delete": "Удалить",
+    "confirmDelete": "Удалить «{title}»?",
+    "grams": "{grams} г"
+  },
+  "history": {
+    "title": "История",
+    "week": "Неделя",
+    "month": "Месяц",
+    "show": "Показать",
+    "mealsCount": "{count, plural, one {# приём пищи} few {# приёма пищи} many {# приёмов пищи} other {# приёма пищи}}",
+    "total": "итого",
+    "perDay": "В среднем в день:",
+    "outOf": "из {target}",
+    "macroCompare": "Б{protein}/{proteinTarget} · Ж{fat}/{fatTarget} · У{carbs}/{carbsTarget}",
+    "empty": "Нет записей за этот период.",
+    "dayEmpty": "В этот день ничего не записано.",
+    "today": "Сегодня"
+  },
+  "recipes": {
+    "title": "Рецепты",
+    "subtitle": "Всё хранится в расчёте на одну порцию — внутри рецепта можно выставить нужное количество.",
+    "empty": "Пока ни одного рецепта. Попроси Клода «запиши рецепт» — он появится здесь.",
+    "searchPlaceholder": "Поиск по названию или ингредиенту",
+    "searchLabel": "Поиск по рецептам",
+    "clearSearch": "Очистить поиск",
+    "nothingFound": "Ничего не нашлось по запросу «{query}».",
+    "perServing": "на порцию"
+  },
+  "recipe": {
+    "back": "Все рецепты",
+    "servings": "Порций",
+    "servingsHint": "Количества пересчитываются автоматически",
+    "servingsCount": "{count, plural, one {# порция} few {# порции} many {# порций} other {# порции}}",
+    "fewerServings": "Меньше порций",
+    "moreServings": "Больше порций",
+    "ingredients": "Ингредиенты",
+    "checkedOf": "{checked} из {total}",
+    "reset": "Сбросить",
+    "toTaste": "по вкусу",
+    "nutrition": "КБЖУ",
+    "steps": "Приготовление"
+  },
+  "settings": {
+    "title": "Настройки",
+    "kcalTarget": "Дневная цель по калориям",
+    "macroNote": "Б/Ж/У пересчитаются автоматически: Б{protein}/Ж{fat}/У{carbs} г",
+    "timezone": "Таймзона",
+    "save": "Сохранить",
+    "signOut": "Выйти",
+    "invalid": "Некорректные значения"
+  },
+  "consent": {
+    "title": "Разрешить доступ?",
+    "requests": "запрашивает доступ к твоим данным в Carrot Eaters.",
+    "app": "Приложение:",
+    "redirectUri": "Redirect URI:",
+    "scopes": "Разрешения:",
+    "allow": "Разрешить",
+    "deny": "Отклонить",
+    "missingId": "Отсутствует authorization_id.",
+    "invalidRequest": "Некорректный запрос авторизации.",
+    "errorPrefix": "Ошибка:"
+  }
+}

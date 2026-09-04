@@ -3,16 +3,18 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { signOut } from '@/app/settings/actions';
-
-const LINKS = [
-  { href: '/dashboard', label: 'Сегодня' },
-  { href: '/history', label: 'История' },
-  { href: '/recipes', label: 'Рецепты' },
-  { href: '/settings', label: 'Настройки' },
-];
+import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 
 export function AppHeader() {
+  const t = useTranslations('nav');
+  const links = [
+    { href: '/dashboard', label: t('today') },
+    { href: '/history', label: t('history') },
+    { href: '/recipes', label: t('recipes') },
+    { href: '/settings', label: t('settings') },
+  ];
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -46,7 +48,7 @@ export function AppHeader() {
             aria-expanded={open}
             className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition-all hover:border-slate-300 hover:bg-slate-50 active:scale-95"
           >
-            Меню
+            {t('menu')}
             <svg
               viewBox="0 0 20 20"
               fill="none"
@@ -61,7 +63,7 @@ export function AppHeader() {
               open ? 'scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0'
             }`}
           >
-            {LINKS.map((link) => {
+            {links.map((link) => {
               const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
               return (
                 <Link
@@ -77,12 +79,14 @@ export function AppHeader() {
               );
             })}
             <div className="my-1 h-px bg-slate-100" />
+            <LocaleSwitcher compact />
+            <div className="my-1 h-px bg-slate-100" />
             <form action={signOut}>
               <button
                 type="submit"
                 className="w-full rounded-xl px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
               >
-                Выйти
+                {t('signOut')}
               </button>
             </form>
           </div>

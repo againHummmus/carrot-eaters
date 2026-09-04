@@ -8,8 +8,8 @@ export function registerDeleteMealTool(server: McpServer, ctx: ToolContext): voi
     'delete_meal',
     {
       description:
-        'Удаляет приём пищи по meal_id (вместе со связанными meal_items). ' +
-        'meal_id заранее неизвестен — сначала вызови list_meals, чтобы его найти.',
+        'Deletes a meal by meal_id, along with its meal_items. ' +
+        'You do not know the meal_id up front — call list_meals first to find it.',
       inputSchema: {
         meal_id: z.string().uuid(),
       },
@@ -18,9 +18,9 @@ export function registerDeleteMealTool(server: McpServer, ctx: ToolContext): voi
       const { data, error } = await ctx.db.from('meals').delete().eq('id', meal_id).eq('user_id', ctx.userId).select('id, title').maybeSingle();
       if (error) throw new Error(error.message);
       if (!data) {
-        return { content: [{ type: 'text', text: 'Приём пищи не найден.' }], isError: true };
+        return { content: [{ type: 'text', text: 'Meal not found.' }], isError: true };
       }
-      return { content: [{ type: 'text', text: `Удалено: ${data.title}` }] };
+      return { content: [{ type: 'text', text: `Deleted: ${data.title}` }] };
     }
   );
 }

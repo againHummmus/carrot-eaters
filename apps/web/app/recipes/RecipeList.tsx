@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Recipe } from '@carrot-eaters/shared';
+import { useTranslations } from 'next-intl';
 
 /** A recipe row plus just enough of its ingredients to search through them. */
 export type RecipeListItem = Recipe & { ingredients: { name: string }[] };
@@ -18,6 +19,8 @@ function haystack(recipe: RecipeListItem): string {
 }
 
 export function RecipeList({ recipes }: { recipes: RecipeListItem[] }) {
+  const t = useTranslations('recipes');
+  const common = useTranslations('common');
   const [query, setQuery] = useState('');
 
   const indexed = useMemo(() => recipes.map((recipe) => ({ recipe, text: haystack(recipe) })), [recipes]);
@@ -31,7 +34,7 @@ export function RecipeList({ recipes }: { recipes: RecipeListItem[] }) {
   if (recipes.length === 0) {
     return (
       <p className="animate-fade-in-up rounded-2xl border border-dashed border-slate-200 bg-white/60 p-6 text-center text-sm text-slate-400">
-        Пока ни одного рецепта. Попроси Клода «запиши рецепт» — он появится здесь.
+        {t('empty')}
       </p>
     );
   }
@@ -47,15 +50,15 @@ export function RecipeList({ recipes }: { recipes: RecipeListItem[] }) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Поиск по названию или ингредиенту"
-          aria-label="Поиск по рецептам"
+          placeholder={t('searchPlaceholder')}
+          aria-label={t('searchLabel')}
           className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-800 shadow-sm shadow-slate-900/3 outline-none transition-colors placeholder:text-slate-400 focus:border-emerald-300"
         />
         {query && (
           <button
             type="button"
             onClick={() => setQuery('')}
-            aria-label="Очистить поиск"
+            aria-label={t('clearSearch')}
             className="absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
           >
             <svg viewBox="0 0 20 20" fill="none" className="h-3.5 w-3.5">
@@ -68,7 +71,7 @@ export function RecipeList({ recipes }: { recipes: RecipeListItem[] }) {
       <section className="animate-fade-in-up flex flex-col gap-2" style={{ animationDelay: '80ms' }}>
         {visible.length === 0 && (
           <p className="rounded-2xl border border-dashed border-slate-200 bg-white/60 p-6 text-center text-sm text-slate-400">
-            Ничего не нашлось по запросу «{query.trim()}».
+            {t('nothingFound', { query: query.trim() })}
           </p>
         )}
 
@@ -85,11 +88,17 @@ export function RecipeList({ recipes }: { recipes: RecipeListItem[] }) {
                 {recipe.description && <p className="mt-0.5 line-clamp-2 text-xs text-slate-400">{recipe.description}</p>}
               </div>
               <div className="shrink-0 text-right">
-                <p className="text-sm font-medium text-slate-800">{Math.round(recipe.kcal)} ккал</p>
-                <p className="text-xs text-slate-400">
-                  Б{Math.round(recipe.protein)}/Ж{Math.round(recipe.fat)}/У{Math.round(recipe.carbs)}
+                <p className="text-sm font-medium text-slate-800">
+                  {Math.round(recipe.kcal)} {common('kcal')}
                 </p>
-                <p className="text-xs text-slate-300">на порцию</p>
+                <p className="text-xs text-slate-400">
+                  {common('macroLine', {
+                    protein: Math.round(recipe.protein),
+                    fat: Math.round(recipe.fat),
+                    carbs: Math.round(recipe.carbs),
+                  })}
+                </p>
+                <p className="text-xs text-slate-300">{t('perServing')}</p>
               </div>
             </div>
           </Link>

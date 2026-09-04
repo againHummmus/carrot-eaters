@@ -10,15 +10,17 @@ import { registerUpdateMealTool } from './tools/updateMeal.js';
 import { registerDeleteMealTool } from './tools/deleteMeal.js';
 import { registerRecipeTools } from './tools/recipes.js';
 
-const INSTRUCTIONS = `Перед первым логированием еды в разговоре проверяй профиль через get_profile.
-Если профиля нет — спроси у пользователя имя и дневную цель по калориям (только калории — Б/Ж/У считаются
-автоматически) и вызови setup_profile. После каждого log_meal или log_recipe_portion сообщай пользователю
-итог за день и остаток до цели — эти инструменты уже возвращают готовую сводку, просто перескажи её.
-update_meal и delete_meal принимают meal_id, а не название — у тебя нет его заранее, поэтому перед правкой
-или удалением всегда сначала вызывай list_meals, чтобы найти нужный id.
-Когда пользователь просит записать/сохранить рецепт — вызывай save_recipe. Ингредиенты и КБЖУ в нём всегда
-указывай в расчёте на ОДНУ порцию: число порций пользователь выставляет сам в вебе, и количества
-пересчитываются автоматически. delete_recipe принимает recipe_id — сначала найди его через list_recipes.`;
+const INSTRUCTIONS = `Check the profile with get_profile before logging any food for the first time in a conversation.
+If there is no profile, ask the user for their name and daily calorie goal (calories only — protein/fat/carbs are
+derived automatically) and call setup_profile. After every log_meal or log_recipe_portion, tell the user the running
+day total and what is left against the goal — those tools already return that summary, so just relay it.
+update_meal and delete_meal take a meal_id, not a title, and you have no way to know it up front: always call
+list_meals first to find the right id before editing or deleting.
+When the user asks to save a recipe, call save_recipe. Always give its ingredients and nutrients per SINGLE serving:
+the user picks the number of servings in the web app and the amounts are rescaled from there. delete_recipe takes a
+recipe_id — look it up with list_recipes first.
+
+Tool output is written in English. Reply to the user in whatever language they are speaking.`;
 
 export function buildMcpServer(auth: AuthInfo): McpServer {
   const ctx = buildToolContext(auth);

@@ -1,9 +1,11 @@
 import { redirect } from 'next/navigation';
 import { requireUser, fetchProfile } from '@/lib/auth';
 import { AppHeader } from '@/components/AppHeader';
+import { getTranslations } from 'next-intl/server';
 import { RecipeList, type RecipeListItem } from './RecipeList';
 
 export default async function RecipesPage() {
+  const t = await getTranslations('recipes');
   const { supabase, userId } = await requireUser();
   const profile = await fetchProfile(supabase, userId);
   if (!profile) redirect('/onboarding');
@@ -23,10 +25,8 @@ export default async function RecipesPage() {
 
       <main className="mx-auto flex max-w-2xl flex-col gap-5 px-4 pb-24 pt-4">
         <div className="animate-fade-in-up">
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Рецепты</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Всё хранится в расчёте на одну порцию — внутри рецепта можно выставить нужное количество.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{t('title')}</h1>
+          <p className="mt-1 text-sm text-slate-500">{t('subtitle')}</p>
         </div>
 
         <RecipeList recipes={recipes} />

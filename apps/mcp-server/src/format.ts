@@ -3,5 +3,5 @@ export function round(n: number): number {
 }
 
 export function macroLine(kcal: number, protein: number, fat: number, carbs: number): string {
-  return `${round(kcal)} ккал (Б${round(protein)}/Ж${round(fat)}/У${round(carbs)})`;
+  return `${round(kcal)} kcal (P${round(protein)}/F${round(fat)}/C${round(carbs)})`;
 }

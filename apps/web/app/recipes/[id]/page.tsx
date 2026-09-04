@@ -3,10 +3,12 @@ import Link from 'next/link';
 import { requireUser, fetchProfile } from '@/lib/auth';
 import type { RecipeWithIngredients } from '@carrot-eaters/shared';
 import { AppHeader } from '@/components/AppHeader';
+import { getTranslations } from 'next-intl/server';
 import { RecipeDetail } from './RecipeDetail';
 
 export default async function RecipePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const t = await getTranslations('recipe');
   const { supabase, userId } = await requireUser();
   const profile = await fetchProfile(supabase, userId);
   if (!profile) redirect('/onboarding');
@@ -32,7 +34,7 @@ export default async function RecipePage({ params }: { params: Promise<{ id: str
           <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
             <path d="M12.5 5L7.5 10L12.5 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          Все рецепты
+          {t('back')}
         </Link>
 
         <RecipeDetail recipe={recipe} />

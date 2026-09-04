@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { requireUser, fetchProfile } from '@/lib/auth';
 import { zonedPeriodRangeUtc, zonedDateKey, macroTargets } from '@carrot-eaters/shared';
 import { AppHeader } from '@/components/AppHeader';
+import { getTranslations } from 'next-intl/server';
 
 function isoDate(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -21,6 +22,8 @@ export default async function HistoryPage({
 }: {
   searchParams: Promise<{ from?: string; to?: string; preset?: string }>;
 }) {
+  const t = await getTranslations('history');
+  const common = await getTranslations('common');
   const { supabase, userId } = await requireUser();
   const profile = await fetchProfile(supabase, userId);
   if (!profile) redirect('/onboarding');
@@ -76,15 +79,15 @@ export default async function HistoryPage({
       <AppHeader />
 
       <main className="mx-auto flex max-w-2xl flex-col gap-5 px-4 pb-24 pt-4">
-      <h1 className="animate-fade-in-up text-2xl font-semibold tracking-tight text-slate-900">История</h1>
+      <h1 className="animate-fade-in-up text-2xl font-semibold tracking-tight text-slate-900">{t('title')}</h1>
 
       <nav className="animate-fade-in-up flex flex-col gap-3" style={{ animationDelay: '40ms' }}>
         <div className="flex flex-wrap gap-2">
           <Link href="/history?preset=week" className={chipClass(activePreset === 'week')}>
-            Неделя
+            {t('week')}
           </Link>
           <Link href="/history?preset=month" className={chipClass(activePreset === 'month')}>
-            Месяц
+            {t('month')}
           </Link>
         </div>
         <form action="/history" className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -107,7 +110,7 @@ export default async function HistoryPage({
             type="submit"
             className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-slate-800 active:scale-95"
           >
-            Показать
+            {t('show')}
           </button>
         </form>
       </nav>
@@ -117,26 +120,41 @@ export default async function HistoryPage({
         style={{ animationDelay: '80ms' }}
       >
         <p className="text-sm text-slate-500">
-          {from} — {to} · {rows.length} приёмов пищи
+          {from} — {to} · {t('mealsCount', { count: rows.length })}
         </p>
         <p className="mt-2 text-lg font-semibold text-slate-900">
-          {Math.round(total.kcal)} ккал <span className="text-sm font-normal text-slate-400">итого</span>
+          {Math.round(total.kcal)} {common('kcal')} <span className="text-sm font-normal text-slate-400">{t('total')}</span>
         </p>
         <p className="text-sm text-slate-500">
-          Б{Math.round(total.protein)}/Ж{Math.round(total.fat)}/У{Math.round(total.carbs)}
+          {common('macroLine', {
+            protein: Math.round(total.protein),
+            fat: Math.round(total.fat),
+            carbs: Math.round(total.carbs),
+          })}
         </p>
         <div className="my-3 h-px bg-slate-100" />
         <p className="text-sm text-slate-500">
-          В среднем в день: <span className="font-medium text-slate-700">{Math.round(total.kcal / dayCount)} ккал</span> из{' '}
-          {profile.kcal_target} · Б{Math.round(total.protein / dayCount)}/{targets.protein} · Ж{Math.round(total.fat / dayCount)}/
-          {targets.fat} · У{Math.round(total.carbs / dayCount)}/{targets.carbs}
+          {t('perDay')}{' '}
+          <span className="font-medium text-slate-700">
+            {Math.round(total.kcal / dayCount)} {common('kcal')}
+          </span>{' '}
+          {/* A string, so ICU leaves it unformatted and it matches the raw goal numbers elsewhere on the page. */}
+          {t('outOf', { target: String(profile.kcal_target) })} ·{' '}
+          {t('macroCompare', {
+            protein: Math.round(total.protein / dayCount),
+            proteinTarget: targets.protein,
+            fat: Math.round(total.fat / dayCount),
+            fatTarget: targets.fat,
+            carbs: Math.round(total.carbs / dayCount),
+            carbsTarget: targets.carbs,
+          })}
         </p>
       </section>
 
       <section className="animate-fade-in-up flex flex-col gap-2" style={{ animationDelay: '120ms' }}>
         {days.length === 0 && (
           <p className="rounded-2xl border border-dashed border-slate-200 bg-white/60 p-6 text-center text-sm text-slate-400">
-            Нет записей за этот период.
+            {t('empty')}
           </p>
         )}
         {days.map(([day, sums], i) => {
@@ -151,7 +169,12 @@ export default async function HistoryPage({
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium text-slate-800">{day}</span>
                 <span className="flex shrink-0 items-center gap-1 text-sm text-slate-500">
-                  {Math.round(sums.kcal)} ккал · Б{Math.round(sums.protein)}/Ж{Math.round(sums.fat)}/У{Math.round(sums.carbs)}
+                  {Math.round(sums.kcal)} {common('kcal')} ·{' '}
+                  {common('macroLine', {
+                    protein: Math.round(sums.protein),
+                    fat: Math.round(sums.fat),
+                    carbs: Math.round(sums.carbs),
+                  })}
                   <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4 text-slate-300">
                     <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>

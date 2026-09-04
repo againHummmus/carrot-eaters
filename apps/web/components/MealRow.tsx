@@ -4,18 +4,23 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { MealWithItems } from '@carrot-eaters/shared';
+import { useLocale, useTranslations } from 'next-intl';
 
 export function MealRow({ meal, delay = 0 }: { meal: MealWithItems; delay?: number }) {
+  const t = useTranslations('meal');
+  const common = useTranslations('common');
+  const locale = useLocale();
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(meal.title);
   const [busy, setBusy] = useState(false);
 
-  const time = new Date(meal.eaten_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  // Deliberately the viewer's own timezone, not the profile's — this is "when I ate it".
+  const time = new Date(meal.eaten_at).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 
   async function handleDelete() {
-    if (!confirm(`Удалить «${meal.title}»?`)) return;
+    if (!confirm(t('confirmDelete', { title: meal.title }))) return;
     setBusy(true);
     const supabase = createClient();
     const { error } = await supabase.from('meals').delete().eq('id', meal.id);
@@ -77,9 +82,15 @@ export function MealRow({ meal, delay = 0 }: { meal: MealWithItems; delay?: numb
           </div>
         </button>
         <div className="shrink-0 text-right">
-          <p className="text-sm font-medium text-slate-800">{Math.round(meal.kcal)} ккал</p>
+          <p className="text-sm font-medium text-slate-800">
+            {Math.round(meal.kcal)} {common('kcal')}
+          </p>
           <p className="text-xs text-slate-400">
-            Б{Math.round(meal.protein)}/Ж{Math.round(meal.fat)}/У{Math.round(meal.carbs)}
+            {common('macroLine', {
+              protein: Math.round(meal.protein),
+              fat: Math.round(meal.fat),
+              carbs: Math.round(meal.carbs),
+            })}
           </p>
         </div>
       </div>
@@ -93,9 +104,11 @@ export function MealRow({ meal, delay = 0 }: { meal: MealWithItems; delay?: numb
               <div key={item.id} className="flex justify-between gap-3 text-sm text-slate-600">
                 <span className="min-w-0 break-words">
                   {item.name}
-                  {item.grams ? ` (${item.grams} г)` : ''}
+                  {item.grams ? ` (${t('grams', { grams: item.grams })})` : ''}
                 </span>
-                <span className="shrink-0">{Math.round(item.kcal)} ккал</span>
+                <span className="shrink-0">
+                  {Math.round(item.kcal)} {common('kcal')}
+                </span>
               </div>
             ))}
             <div className="mt-1 flex gap-4 text-sm">
@@ -104,14 +117,14 @@ export function MealRow({ meal, delay = 0 }: { meal: MealWithItems; delay?: numb
                 onClick={() => setEditing(true)}
                 className="text-slate-500 transition-colors hover:text-slate-800 disabled:opacity-50"
               >
-                Переименовать
+                {t('rename')}
               </button>
               <button
                 disabled={busy}
                 onClick={handleDelete}
                 className="text-red-500 transition-colors hover:text-red-700 disabled:opacity-50"
               >
-                Удалить
+                {t('delete')}
               </button>
             </div>
           </div>

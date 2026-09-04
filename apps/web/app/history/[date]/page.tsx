@@ -4,6 +4,7 @@ import { requireUser, fetchProfile } from '@/lib/auth';
 import { zonedPeriodRangeUtc, zonedDateKey, type MealWithItems } from '@carrot-eaters/shared';
 import { AppHeader } from '@/components/AppHeader';
 import { DaySummary } from '@/components/DaySummary';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -11,6 +12,8 @@ export default async function HistoryDayPage({ params }: { params: Promise<{ dat
   const { date } = await params;
   if (!DATE_RE.test(date)) notFound();
 
+  const t = await getTranslations('history');
+  const locale = await getLocale();
   const { supabase, userId } = await requireUser();
   const profile = await fetchProfile(supabase, userId);
   if (!profile) redirect('/onboarding');
@@ -28,7 +31,7 @@ export default async function HistoryDayPage({ params }: { params: Promise<{ dat
   const meals = (data ?? []) as MealWithItems[];
 
   // Noon UTC keeps the calendar date stable when re-rendered in the profile's timezone.
-  const dayLabel = new Date(`${date}T12:00:00Z`).toLocaleDateString('ru-RU', {
+  const dayLabel = new Date(`${date}T12:00:00Z`).toLocaleDateString(locale, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -47,13 +50,13 @@ export default async function HistoryDayPage({ params }: { params: Promise<{ dat
             <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
               <path d="M12.5 5L7.5 10L12.5 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            История
+            {t('title')}
           </Link>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 first-letter:uppercase">{dayLabel}</h1>
-          {isToday && <p className="text-sm text-slate-500">Сегодня</p>}
+          {isToday && <p className="text-sm text-slate-500">{t('today')}</p>}
         </div>
 
-        <DaySummary meals={meals} profile={profile} emptyText="В этот день ничего не записано." />
+        <DaySummary meals={meals} profile={profile} emptyText={t('dayEmpty')} />
       </main>
     </div>
   );

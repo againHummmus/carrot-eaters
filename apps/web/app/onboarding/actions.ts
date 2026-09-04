@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
+import { getTranslations } from 'next-intl/server';
 
 export async function createProfile(formData: FormData) {
   const { supabase, userId } = await requireUser();
@@ -11,7 +12,8 @@ export async function createProfile(formData: FormData) {
   const timezone = String(formData.get('timezone') ?? 'Europe/Belgrade');
 
   if (!name || !Number.isFinite(kcalTarget) || kcalTarget <= 0) {
-    throw new Error('Заполните имя и корректную цель по калориям');
+    const t = await getTranslations('onboarding');
+    throw new Error(t('invalid'));
   }
 
   const { error } = await supabase
