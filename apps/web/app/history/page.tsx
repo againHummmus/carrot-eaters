@@ -142,15 +142,19 @@ export default async function HistoryPage({
         {days.map(([day, sums], i) => {
           const pct = Math.min(100, Math.round((sums.kcal / profile.kcal_target) * 100));
           return (
-            <div
+            <Link
               key={day}
-              className="animate-fade-in-up rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm shadow-slate-900/3 transition-shadow hover:shadow-md"
+              href={`/history/${day}`}
+              className="animate-fade-in-up block rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm shadow-slate-900/3 transition-shadow hover:shadow-md"
               style={{ animationDelay: `${140 + i * 30}ms` }}
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium text-slate-800">{day}</span>
-                <span className="shrink-0 text-sm text-slate-500">
+                <span className="flex shrink-0 items-center gap-1 text-sm text-slate-500">
                   {Math.round(sums.kcal)} ккал · Б{Math.round(sums.protein)}/Ж{Math.round(sums.fat)}/У{Math.round(sums.carbs)}
+                  <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4 text-slate-300">
+                    <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </span>
               </div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
@@ -159,7 +163,7 @@ export default async function HistoryPage({
                   style={{ width: `${pct}%` }}
                 />
               </div>
-            </div>
+            </Link>
           );
         })}
       </section>

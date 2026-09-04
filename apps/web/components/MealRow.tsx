@@ -50,11 +50,11 @@ export function MealRow({ meal, delay = 0 }: { meal: MealWithItems; delay?: numb
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex items-start justify-between gap-2">
-        <button className="flex min-w-0 flex-1 items-center gap-2 text-left" onClick={() => setExpanded((v) => !v)}>
+        <button className="flex min-w-0 flex-1 items-start gap-2 text-left" onClick={() => setExpanded((v) => !v)}>
           <svg
             viewBox="0 0 20 20"
             fill="none"
-            className={`h-4 w-4 shrink-0 text-slate-300 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}
+            className={`mt-0.5 h-4 w-4 shrink-0 text-slate-300 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}
           >
             <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -70,7 +70,8 @@ export function MealRow({ meal, delay = 0 }: { meal: MealWithItems; delay?: numb
                 className="w-full rounded border border-slate-300 px-1 py-0.5 text-sm font-medium"
               />
             ) : (
-              <p className="truncate font-medium text-slate-800">{meal.title}</p>
+              // Collapsed rows stay one line so the list scans quickly; expanding shows the full title.
+              <p className={`font-medium text-slate-800 ${expanded ? 'break-words' : 'truncate'}`}>{meal.title}</p>
             )}
             <p className="text-xs text-slate-400">{time}</p>
           </div>
@@ -89,8 +90,8 @@ export function MealRow({ meal, delay = 0 }: { meal: MealWithItems; delay?: numb
         <div className="overflow-hidden">
           <div className="flex flex-col gap-2 border-t border-slate-100 pt-3">
             {meal.items?.map((item) => (
-              <div key={item.id} className="flex justify-between text-sm text-slate-600">
-                <span className="truncate pr-2">
+              <div key={item.id} className="flex justify-between gap-3 text-sm text-slate-600">
+                <span className="min-w-0 break-words">
                   {item.name}
                   {item.grams ? ` (${item.grams} г)` : ''}
                 </span>
@@ -98,10 +99,18 @@ export function MealRow({ meal, delay = 0 }: { meal: MealWithItems; delay?: numb
               </div>
             ))}
             <div className="mt-1 flex gap-4 text-sm">
-              <button disabled={busy} onClick={() => setEditing(true)} className="text-slate-500 transition-colors hover:text-slate-800 disabled:opacity-50">
+              <button
+                disabled={busy}
+                onClick={() => setEditing(true)}
+                className="text-slate-500 transition-colors hover:text-slate-800 disabled:opacity-50"
+              >
                 Переименовать
               </button>
-              <button disabled={busy} onClick={handleDelete} className="text-red-500 transition-colors hover:text-red-700 disabled:opacity-50">
+              <button
+                disabled={busy}
+                onClick={handleDelete}
+                className="text-red-500 transition-colors hover:text-red-700 disabled:opacity-50"
+              >
                 Удалить
               </button>
             </div>

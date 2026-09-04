@@ -8,6 +8,7 @@ import { signOut } from '@/app/settings/actions';
 const LINKS = [
   { href: '/dashboard', label: 'Сегодня' },
   { href: '/history', label: 'История' },
+  { href: '/recipes', label: 'Рецепты' },
   { href: '/settings', label: 'Настройки' },
 ];
 
@@ -61,7 +62,7 @@ export function AppHeader() {
             }`}
           >
             {LINKS.map((link) => {
-              const active = pathname === link.href;
+              const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
               return (
                 <Link
                   key={link.href}

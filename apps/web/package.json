@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "cd ../.. && npm run build -w packages/shared && cd apps/web && next build --webpack",
     "start": "next start",
     "typecheck": "tsc --noEmit"
